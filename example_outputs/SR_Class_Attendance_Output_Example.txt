@@ -1,0 +1,20 @@
+student_number	att_date	attendance code	att_comment	att_mode_code	att_interval	course_number	section_number	periodID
+199834	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSArtI	1	639
+199834	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	1	639
+227364	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	2	641
+100399	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSChem	1	640
+102270	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEarthSci	3	640
+102270	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEngI	1	642
+100306	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEngIII	4	642
+100278	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSHR	1	751
+100391	1/13/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSHR	1	751
+223487	1/14/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	1	639
+100273	1/14/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEngI	1	642
+223487	1/15/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	1	639
+100273	1/15/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEngI	1	642
+223487	1/19/2016	T	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	2	639
+227364	1/20/2016	T	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	2	639
+227364	1/21/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	2	639
+227364	1/22/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSBAlg	2	639
+102270	1/22/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSEarthSci	3	640
+100278	1/22/2016	A	Uploaded on 2016-01-22	ATT_ModeMeeting	0	HSHR	1	751
