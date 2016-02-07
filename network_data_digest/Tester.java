@@ -7,9 +7,9 @@ public class Tester {
   public static void main(String args[]) {
     
     //file path for database
-    String dbName = "/home/ubuntu/workspace/databases/SRDB.db";
+    String dbName = "/home/ubuntu/workspace/databases/test.db";
     
-    AttendanceComparison attendanceComparison = new AttendanceComparison("2016-01-06", dbName);
+    AttendanceComparison attendanceComparison = new AttendanceComparison("2016-02-01", dbName);
     
     attendanceComparison.run();
     

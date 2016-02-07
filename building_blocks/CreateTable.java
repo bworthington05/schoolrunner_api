@@ -24,12 +24,17 @@ public class CreateTable {
       Class.forName("org.sqlite.JDBC");
       c = DriverManager.getConnection("jdbc:sqlite:" + this.dbName);
       System.out.println("opened database successfully");
-
+      
+      //if the table already exists, drop it from the database so that it can be recreated as needed without causing an error
       stmt = c.createStatement();
-      
-      String fullTableStatement = "CREATE TABLE " + this.tableName + " " + this.createTableStatement;
-      
+      String fullTableStatement = "DROP TABLE IF EXISTS " + this.tableName;
       stmt.executeUpdate(fullTableStatement);
+
+      //create the new table now
+      stmt = c.createStatement();
+      fullTableStatement = "CREATE TABLE " + this.tableName + " " + this.createTableStatement;
+      stmt.executeUpdate(fullTableStatement);
+      
       stmt.close();
       c.close();
       

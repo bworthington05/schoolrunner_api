@@ -101,34 +101,34 @@ public class AssessmentsWithoutObjectives {
       
       while (rs.next()) {
           
-          //add each record of the SQL results to the FileWriter object
-          //surrounding quotes "\"" used to ensure data that my contain commas don't act as delimiters
-          writer.append("\"" + rs.getString(1) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(2) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(3) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(4) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(5) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(6) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(7) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(8) + "\"");
-    	    writer.append(',');
-    	    writer.append("\"" + rs.getString(9) + "\"");
-    	    writer.append('\n');
-    	    
-    	    //add certain columns of each record to the array lists that will be passed to email method
-          courseName.add(rs.getString(2));
-          staffEmail.add(rs.getString(4));
-          assessmentName.add(rs.getString(5));
-          assessmentDate.add(rs.getString(6));
-          studentsAssessed.add(rs.getString(7));
-          editURL.add(rs.getString(9));
+        //add each record of the SQL results to the FileWriter object
+        //surrounding quotes "\"" used to ensure data that my contain commas don't act as delimiters
+        writer.append("\"" + rs.getString(1) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(2) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(3) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(4) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(5) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(6) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(7) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(8) + "\"");
+  	    writer.append(',');
+  	    writer.append("\"" + rs.getString(9) + "\"");
+  	    writer.append('\n');
+  	    
+  	    //add certain columns of each record to the array lists that will be passed to email method
+        courseName.add(rs.getString(2));
+        staffEmail.add(rs.getString(4));
+        assessmentName.add(rs.getString(5));
+        assessmentDate.add(rs.getString(6));
+        studentsAssessed.add(rs.getString(7));
+        editURL.add(rs.getString(9));
       }
       
       rs.close();

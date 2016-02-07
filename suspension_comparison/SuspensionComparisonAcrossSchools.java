@@ -11,7 +11,7 @@ public class SuspensionComparisonAcrossSchools {
   
   public static void main(String args[]) {
     
-    //get today's date so that it can be add to fileName or used in an API endpoint parameter
+    //get today's date so that it can be added to fileName or used in an API endpoint parameter
     Date date = Calendar.getInstance().getTime();
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     String today = simpleDateFormat.format(date);
