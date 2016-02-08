@@ -70,7 +70,8 @@ public class AttendanceComparison {
     this.prettyMaxDate = prettyDateFormat.format(this.maxDateDate);
   } //end constructor
   
-  public void run() {
+  //method that crunches attendance data, makes a stacked barchart JPEG, and returns a String file path of the JPEG
+  public String run() {
     
     try {
       //get the number of school days within the minDate-maxDate range
@@ -207,7 +208,7 @@ public class AttendanceComparison {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Attendance Comparison: " + this.prettyMinDate + " - " + this.prettyMaxDate + 
+        "Network Attendance Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate + 
           " (" + this.numberOfSchoolDays + " School Days)", //graph title
         "Small School", //legend label
         "Avg. % of Students per Day", //vertical axis label 
@@ -281,6 +282,8 @@ public class AttendanceComparison {
       System.exit(0);
     }
     
+    return chartFileNameString;
+    
   } //end run method
   
   //method that determines how many school days were within the range minDate-maxDate
@@ -308,5 +311,36 @@ public class AttendanceComparison {
     return schoolDays.size();
 
   } //end getNumberOfSchoolDayes method
+  
+  //method to get the String message that should go above the chart in an email
+  public String getAttendanceEmailMessage() {
+    
+    String message = "<strong>This chart shows a relative comparison of absence and tardy rates across the " +
+      "network for the date range shown.<br>It is based on daily attendance data recorded in Schoolrunner</strong><br><br>.";
+    
+    return message;
+  }
+  
+  public String getAttendanceAnalysisLinks() {
+    
+    String rcaaPK2link = "https://renew.schoolrunner.org/analysis/?analysis_report_id=743";
+    
+    String links = "<strong>For a more detailed breakdown of attendance data by grade level and student, " +
+                    "take a look at your school's attendance report in Schoolrunner:</strong><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 3-4 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 5-8 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA 3-8 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 3-5 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 6-8 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH PK-3 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 4-5 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 6-8 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>MCPA PK-4 Attendance by Student</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 5-8 Attendance by Student</font size='3'></strong></a><br><br>";
+    return links;
+  }
   
 } //end class

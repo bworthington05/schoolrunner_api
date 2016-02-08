@@ -1,10 +1,7 @@
-import java.sql.*;
-import java.io.FileWriter;
-import java.io.IOException;
 
-public class Tester {
+public class DataDigest {
   
-  public static void main(String args[]) {
+  public static void main(String args[]) throws Exception {
     
     //file path for database
     String dbName = "/home/ubuntu/workspace/databases/SRDB.db";
@@ -13,6 +10,11 @@ public class Tester {
     
     //file path for attendance JPEG, referenced in email
     String attendanceChart = attendance.run();
+    String attendanceMessage = attendance.getAttendanceEmailMessage();
+    String attendanceLinks = attendance.getAttendanceAnalysisLinks();
+    
+    EmailDataDigest email = new EmailDataDigest(attendanceMessage, attendanceChart, attendanceLinks);
+    email.send();
     
   } //end main method
   
