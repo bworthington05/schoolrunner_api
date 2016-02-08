@@ -9,7 +9,7 @@ public class Tester {
     //file path for database
     String dbName = "/home/ubuntu/workspace/databases/test.db";
     
-    AttendanceComparison attendanceComparison = new AttendanceComparison("2016-02-01", dbName);
+    AttendanceComparison attendanceComparison = new AttendanceComparison("2016-02-01", "2016-02-01", dbName);
     
     attendanceComparison.run();
     

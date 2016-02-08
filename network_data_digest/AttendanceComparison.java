@@ -18,53 +18,77 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.awt.Color;
+import java.util.Scanner;
 
 //summarizes attendance data for network data digest, generates a .csv and jpeg bar graph
 public class AttendanceComparison {
   
-  //variable for the min_date Absences endpoint URL parameter (yyyy-MM-dd)
+  //variables for the min_date & max_date Absences parameters (yyyy-MM-dd)
   private String minDate;
   private Date minDateDate;
+  private String prettyMinDate;
   
-  private String today;
+  private String maxDate;
+  private Date maxDateDate;
+  private String prettyMaxDate;
+  
+  private SimpleDateFormat simpleDateFormat;
+  private SimpleDateFormat prettyDateFormat;
   
   //variable for the database file path
   private String dbName;
   
-  //constructor that requires a value for the min_date parameter and database file path
-  public AttendanceComparison(String minDate, String dbName) {
-    this.minDate = minDate;
-    this.dbName = dbName;
-  }
+  //variable for storing the number of school days within the minDate-maxDate range
+  //this is needed for attendance calculations
+  private int numberOfSchoolDays;
   
-  public void run() {
+  //file that holds a list of all in session school days
+  private String inSessionDaysFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/in_session_days.txt";
+  
+  //constructor that requires String minDate & maxDate (yyyy-MM-dd) for Absenced endpoint URL and database file path
+  //then takes care of some formatting stuff for minDate and today's date
+  public AttendanceComparison(String minDate, String maxDate, String dbName) {
+    this.minDate = minDate;
+    this.maxDate = maxDate;
+    this.dbName = dbName;
+
+    this.simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
-    //get today's date so that it can be added to the output fileName and used as the max_date parameter
-    Date todaysDate = Calendar.getInstance().getTime();
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    today = simpleDateFormat.format(todaysDate);
-    
-    //turn the minDate string into an actual Date object
+    //turn the minDate & maxDate Strings into actual Date objects so they can be reformatted
     try {
-      minDateDate = simpleDateFormat.parse(minDate);
+      this.minDateDate = simpleDateFormat.parse(this.minDate);
+      this.maxDateDate = simpleDateFormat.parse(this.maxDate);
     } catch (Exception e) {
       System.err.println(e.getClass().getName() + ": " + e.getMessage());
     }
     
     //set up a pretty date format MM/dd/yyyy that can be included in emails or graph titles
-    SimpleDateFormat prettyDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    this.prettyDateFormat = new SimpleDateFormat("MM/dd/yyyy");
     
-    //make strings for today's date and the minDate using the pretty date format
-    String prettyToday = prettyDateFormat.format(todaysDate);
-    String prettyMinDate = prettyDateFormat.format(minDateDate);
+    //make Strings for minDate & maxDate using the pretty date format
+    this.prettyMinDate = prettyDateFormat.format(this.minDateDate);
+    this.prettyMaxDate = prettyDateFormat.format(this.maxDateDate);
+  } //end constructor
+  
+  public void run() {
+    
+    try {
+      //get the number of school days within the minDate-maxDate range
+      this.numberOfSchoolDays = getNumberOfSchoolDays();
+    } catch (Exception e) {
+      System.err.println(e.getClass().getName() + ": " + e.getMessage());
+    }
     
     //file paths for files to be saved
-    String csvFileName = "/home/ubuntu/workspace/output/data_digest/Attendance_Comparison_" + today + ".csv";
-    String chartFileNameString = "/home/ubuntu/workspace/output/data_digest/Attendance_Comparison_Graph_" + today + ".jpeg";
+    String csvFileName = "/home/ubuntu/workspace/output/data_digest/Attendance_Comparison_" +
+      this.minDate + "-" + this.maxDate + ".csv";
+      
+    String chartFileNameString = "/home/ubuntu/workspace/output/data_digest/Attendance_Comparison_Graph_" +
+      this.minDate + "-" + this.maxDate + ".jpeg";
     
-    //custom Absences endpoint url that includes the parameters for active=1, min_date = minDate, and max_date = today
-    String absencesEndpoint = "https://renew.schoolrunner.org/api/v1/absences/?limit=30000&active=1&min_date=" + this.minDate +
-      "&max_date=" + today;
+    //custom Absences endpoint url that includes the parameters for active=1, min_date = minDate, and max_date = maxDate
+    String absencesEndpoint = "https://renew.schoolrunner.org/api/v1/absences/?limit=30000&active=1&min_date=" +
+      this.minDate + "&max_date=" + this.maxDate;
     
     //custom Students endpoint url that includes the parameter active=1
     String studentsEndpoint = "https://renew.schoolrunner.org/api/v1/students/?limit=30000&active=1";
@@ -81,7 +105,7 @@ public class AttendanceComparison {
     try {
       
       Class.forName("org.sqlite.JDBC");
-      c = DriverManager.getConnection("jdbc:sqlite:" + dbName);
+      c = DriverManager.getConnection("jdbc:sqlite:" + this.dbName);
       c.setAutoCommit(false);
       System.out.println("opened database successfully");
       
@@ -99,9 +123,10 @@ public class AttendanceComparison {
               
             "SUM(CASE WHEN absence_types.absence_code = 'TE' THEN 1 ELSE 0 END), " +
             
-            //subtract sum of tardies & absences from (active student count * # of school days in this range- i.e., "student days") 
+            //subtract sum of tardies & absences from (active student count * # of school days in this range, i.e. "student days") 
             //to get the value for the top (filler) part of barchart
-            "(active_students.count_of_students*4)-(SUM(CASE WHEN absence_types.absence_code IN ('A','AE','T','TE') THEN 1 ELSE 0 END))" +
+            "(active_students.count_of_students*"+ this.numberOfSchoolDays +")" +
+            "-(SUM(CASE WHEN absence_types.absence_code IN ('A','AE','T','TE') THEN 1 ELSE 0 END))" +
             
         "FROM absences " +
             "LEFT OUTER JOIN absence_types ON absences.absence_type_id = absence_types.absence_type_id " +
@@ -182,7 +207,8 @@ public class AttendanceComparison {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Attendance Comparison: " + prettyMinDate + " - " + prettyToday, //graph title
+        "Attendance Comparison: " + this.prettyMinDate + " - " + this.prettyMaxDate + 
+          " (" + this.numberOfSchoolDays + " School Days)", //graph title
         "Small School", //legend label
         "Avg. % of Students per Day", //vertical axis label 
         dataset, //dataset being used
@@ -256,5 +282,31 @@ public class AttendanceComparison {
     }
     
   } //end run method
+  
+  //method that determines how many school days were within the range minDate-maxDate
+  private int getNumberOfSchoolDays() throws FileNotFoundException {
+  
+    ArrayList<String> schoolDays = new ArrayList<String>();
+    
+    //read the file that contains the list of in session school days
+    Scanner scanner = new Scanner(new File(this.inSessionDaysFile));
+    
+    while(scanner.hasNext()) {
+        
+        String date = scanner.next();
+        
+        //if minDate <= scanner.next() <= maxDate, then add scanner.next()'s date to the array of school days
+        if (((this.minDate.compareToIgnoreCase(date)) <= 0) && ((this.maxDate.compareToIgnoreCase(date)) >= 0)) {
+          schoolDays.add(date);
+        }
+        
+    } //end while loop
+    
+    scanner.close();
+    
+    //return the size of the array, which is the number of school days within the rande minDate-maxDate
+    return schoolDays.size();
+
+  } //end getNumberOfSchoolDayes method
   
 } //end class
