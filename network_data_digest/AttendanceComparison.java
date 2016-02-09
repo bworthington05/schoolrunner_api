@@ -9,7 +9,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.ChartColor;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.axis.NumberAxis;
@@ -38,6 +37,9 @@ public class AttendanceComparison {
   //variable for the database file path
   private String dbName;
   
+  //the actual DatabaseSetup object that creates the database and manages the API connections
+  private DatabaseSetup database;
+  
   //variable for storing the number of school days within the minDate-maxDate range
   //this is needed for attendance calculations
   private int numberOfSchoolDays;
@@ -45,12 +47,13 @@ public class AttendanceComparison {
   //file that holds a list of all in session school days
   private String inSessionDaysFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/in_session_days.txt";
   
-  //constructor that requires String minDate & maxDate (yyyy-MM-dd) for Absenced endpoint URL and database file path
-  //then takes care of some formatting stuff for minDate and today's date
-  public AttendanceComparison(String minDate, String maxDate, String dbName) {
+  //constructor that requires the database and String minDate & maxDate (yyyy-MM-dd) for API parameters
+  //then takes care of some formatting stuff for minDate and maxDate
+  public AttendanceComparison(DatabaseSetup database, String minDate, String maxDate) {
+    this.database = database;
     this.minDate = minDate;
     this.maxDate = maxDate;
-    this.dbName = dbName;
+    this.dbName = this.database.getDatabaseName();
 
     this.simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
@@ -94,11 +97,10 @@ public class AttendanceComparison {
     //custom Students endpoint url that includes the parameter active=1
     String studentsEndpoint = "https://renew.schoolrunner.org/api/v1/students/?limit=30000&active=1";
     
-    DatabaseSetup database = new DatabaseSetup(dbName);
-    database.createAbsencesTable(absencesEndpoint);
-    database.createAbsenceTypesTable();
-    database.createSchoolsTable();
-    database.createStudentsTable(studentsEndpoint);
+    this.database.createAbsencesTable(absencesEndpoint);
+    this.database.createAbsenceTypesTable();
+    this.database.createSchoolsTable();
+    this.database.createStudentsTable(studentsEndpoint);
     
     Connection c = null;
     Statement stmt = null;
@@ -211,27 +213,12 @@ public class AttendanceComparison {
         "Network Attendance Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate + 
           " (" + this.numberOfSchoolDays + " School Days)", //graph title
         "Small School", //legend label
-        "Avg. % of Students per Day", //vertical axis label 
+        "Avg % of Students per Day", //vertical axis label 
         dataset, //dataset being used
         PlotOrientation.VERTICAL, //bar orientation
         true, //include legend
         true, //generate tooltips
         false); //generate URLs
-      
-      //absent color = red
-      ChartColor absentColor = new ChartColor(252, 28, 3);
-      
-      //absent excused color = orange
-      ChartColor absentExcusedColor = new ChartColor(253, 165, 2);
-      
-      //tardy color = blue
-      ChartColor tardyColor = new ChartColor(40, 85, 219);
-      
-      //tardy excused color = purplish
-      ChartColor tardyExcusedColor = new ChartColor(188, 101, 209);
-      
-      //everyone else color = greenish
-      ChartColor everyoneElseColor = new ChartColor(113, 196, 128);
       
       //create renderer to customize the chart
       CategoryPlot plot = chart.getCategoryPlot();
@@ -241,11 +228,17 @@ public class AttendanceComparison {
       //make the dashed lines that go across the chart black
       plot.setRangeGridlinePaint(Color.BLACK);
       
-      renderer.setSeriesPaint(0, absentColor);
-      renderer.setSeriesPaint(1, absentExcusedColor);
-      renderer.setSeriesPaint(2, tardyColor);
-      renderer.setSeriesPaint(3, tardyExcusedColor);
-      renderer.setSeriesPaint(4, everyoneElseColor);
+      plot.setBackgroundPaint(Color.LIGHT_GRAY);
+      
+      //set the color of each series using custom colors from MyColors class
+      renderer.setSeriesPaint(0, MyColors.RED);
+      renderer.setSeriesPaint(1, MyColors.ORANGE);
+      renderer.setSeriesPaint(2, MyColors.BLUE);
+      renderer.setSeriesPaint(3, MyColors.LIGHT_BLUE);
+      renderer.setSeriesPaint(4, MyColors.CLEAR);
+      
+      //don't show the everyone else series in the legend 
+      renderer.setSeriesVisibleInLegend(4, false);
       
       //renders each section of a bar as a percent out of 100
       renderer.setRenderAsPercentages(true);
@@ -313,33 +306,33 @@ public class AttendanceComparison {
   } //end getNumberOfSchoolDayes method
   
   //method to get the String message that should go above the chart in an email
-  public String getAttendanceEmailMessage() {
+  public String getEmailMessage() {
     
     String message = "<strong>This chart shows a relative comparison of absence and tardy rates across the " +
-      "network for the date range shown.<br>It is based on daily attendance data recorded in Schoolrunner</strong><br><br>.";
+      "network for the date range shown. It is based on daily attendance data recorded in Schoolrunner</strong><br><br>.";
     
     return message;
   }
   
-  public String getAttendanceAnalysisLinks() {
+  public String getAnalysisLinks() {
     
     String rcaaPK2link = "https://renew.schoolrunner.org/analysis/?analysis_report_id=743";
     
     String links = "<strong>For a more detailed breakdown of attendance data by grade level and student, " +
                     "take a look at your school's attendance report in Schoolrunner:</strong><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 3-4 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 5-8 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA 3-8 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA PK-2 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 3-5 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 6-8 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH PK-3 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 4-5 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 6-8 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>MCPA PK-4 Attendance by Student</font size='3'></strong></a><br>" +
-                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 5-8 Attendance by Student</font size='3'></strong></a><br><br>";
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA PK-2</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 3-4</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>RCAA 5-8</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA PK-2</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>STA 3-8</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA PK-2</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 3-5</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>DTA 6-8</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH PK-3</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 4-5</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>SCH 6-8</font size='3'></strong></a><br>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>MCPA PK-4</font size='3'></strong></a>" +
+                    "&emsp;<a href='" + rcaaPK2link + "'><strong><font size='3'>MCPA 5-8</font size='3'></strong></a><br><br>";
     return links;
   }
   

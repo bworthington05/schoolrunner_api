@@ -5,15 +5,28 @@ import java.util.Properties;
 
 public class EmailDataDigest {
     
-	private String username;
-	private String password;
+    //all the components of the data digest email
     private String attendanceMessage;
     private String attendanceChart;
     private String attendanceLinks;
+    private String assmtRawMessage;
+    private String assmtRawChart;
+    private String assmtRelativeMessage;
+    private String assmtRelativeChart;
+    private String unalignedMessage;
+    private String unalignedChart;
+    private String unalignedCSV;
+    
+	private String username;
+	private String password;
     private Login login = new Login();
 
     //constructor requires String values for each part of the email
-    public EmailDataDigest(String attendanceMessage, String attendanceChart, String attendanceLinks) {
+    public EmailDataDigest(
+        String attendanceMessage, String attendanceChart, String attendanceLinks,
+        String assmtRawMessage, String assmtRawChart,
+        String assmtRelativeMessage, String assmtRelativeChart,
+        String unalignedMessage, String unalignedChart, String unalignedCSV) {
         
         System.out.println("EMAIL LOGIN");
         this.login.setUsername();
@@ -26,6 +39,16 @@ public class EmailDataDigest {
         this.attendanceMessage = attendanceMessage;
         this.attendanceChart = attendanceChart;
         this.attendanceLinks = attendanceLinks;
+        
+        this.assmtRawMessage = assmtRawMessage;
+        this.assmtRawChart = assmtRawChart;
+        
+        this.assmtRelativeMessage = assmtRelativeMessage;
+        this.assmtRelativeChart = assmtRelativeChart;
+        
+        this.unalignedMessage = unalignedMessage;
+        this.unalignedChart = unalignedChart;
+        this.unalignedCSV = unalignedCSV;
     }
     
     public void send() throws Exception {
@@ -46,34 +69,58 @@ public class EmailDataDigest {
         Transport transport = mailSession.getTransport();
 
         MimeMessage message = new MimeMessage(mailSession);
-        message.setSubject("Data Digest Test2");
+        message.setSubject("Data Digest Test 4");
         message.setFrom(new InternetAddress(username));
         message.addRecipient(Message.RecipientType.TO,
             new InternetAddress("bworthington05@gmail.com"));
 
         message.addRecipient(Message.RecipientType.TO,
-            new InternetAddress("sumeet@renewschools.org"));
+            new InternetAddress("bworthington@renewschools.org"));
 
 
         MimeMultipart multipart = new MimeMultipart("related");
 
-        //attendance message + attendance chart + attendance report links
         BodyPart messageBodyPart = new MimeBodyPart();
-        String htmlText = this.attendanceMessage + "<img src=\"cid:image\"><br><br>" + this.attendanceLinks;
+        String htmlText = 
+            this.attendanceMessage + "<img src=\"cid:image1\"><br><br>" + this.attendanceLinks + "<br>" +
+            this.assmtRawMessage + "<img src=\"cid:image2\"><br><br><br>" +
+            this.assmtRelativeMessage + "<img src=\"cid:image3\"><br><br><br>" +
+            this.unalignedMessage + "<img src=\"cid:image4\"><br><br><br>";
+            
         messageBodyPart.setContent(htmlText, "text/html");
 
-        //add it
+        //add the htmlText content
         multipart.addBodyPart(messageBodyPart);
         
-        //now the image
+        //now add the images
         messageBodyPart = new MimeBodyPart();
-        
-        String file = attendanceChart;
-        DataSource fds = new FileDataSource(file);
+        DataSource fds = new FileDataSource(this.attendanceChart);
         messageBodyPart.setDataHandler(new DataHandler(fds));
-        messageBodyPart.setHeader("Content-ID","<image>");
-
-        //add it
+        messageBodyPart.setHeader("Content-ID","<image1>");
+        multipart.addBodyPart(messageBodyPart);
+        
+        messageBodyPart = new MimeBodyPart();
+        fds = new FileDataSource(this.assmtRawChart);
+        messageBodyPart.setDataHandler(new DataHandler(fds));
+        messageBodyPart.setHeader("Content-ID","<image2>");
+        multipart.addBodyPart(messageBodyPart);
+        
+        messageBodyPart = new MimeBodyPart();
+        fds = new FileDataSource(this.assmtRelativeChart);
+        messageBodyPart.setDataHandler(new DataHandler(fds));
+        messageBodyPart.setHeader("Content-ID","<image3>");
+        multipart.addBodyPart(messageBodyPart);
+        
+        messageBodyPart = new MimeBodyPart();
+        fds = new FileDataSource(this.unalignedChart);
+        messageBodyPart.setDataHandler(new DataHandler(fds));
+        messageBodyPart.setHeader("Content-ID","<image4>");
+        multipart.addBodyPart(messageBodyPart);
+        
+        messageBodyPart = new MimeBodyPart();
+        fds = new FileDataSource(this.unalignedCSV);
+        messageBodyPart.setDataHandler(new DataHandler(fds));
+        messageBodyPart.setFileName("Unaligned_Assessments.csv");
         multipart.addBodyPart(messageBodyPart);
 
         //put everything together

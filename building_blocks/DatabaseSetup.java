@@ -4,7 +4,7 @@
 public class DatabaseSetup {
     
     //database file name
-    private static String dbName;
+    private String dbName;
     
     private static String schoolsTableName = "SCHOOLS";
     private static String schoolsTableStatement = (
@@ -101,6 +101,11 @@ public class DatabaseSetup {
         this.dbName = dbName;
         CreateDatabase database = new CreateDatabase(this.dbName);
         database.run();
+    }
+    
+    //get the String database name
+    public String getDatabaseName() {
+        return this.dbName;
     }
     
     //method to create database, requires the database file name as a parameter

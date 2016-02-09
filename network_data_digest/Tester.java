@@ -9,10 +9,10 @@ public class Tester {
     //file path for database
     String dbName = "/home/ubuntu/workspace/databases/SRDB.db";
     
-    AttendanceComparison attendance = new AttendanceComparison("2016-02-01", "2016-02-07", dbName);
+    UnalignedAssessmentComparison assessments = new UnalignedAssessmentComparison("2016-01-06", "2016-02-07", dbName);
     
     //file path for attendance JPEG, referenced in email
-    String attendanceChart = attendance.run();
+    String attendanceChart = assessments.run();
     
   } //end main method
   
