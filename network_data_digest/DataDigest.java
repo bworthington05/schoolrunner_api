@@ -14,6 +14,8 @@ public class DataDigest {
     String assmtMinDate = "2016-01-06";
     String assmtMaxDate = "2016-02-07";
     
+    String termBinStartDate = "2015-12-19";
+    
     //do the attendance part of the data digest
     AttendanceComparison attendance = new AttendanceComparison(database, attMinDate, attMaxDate);
     
@@ -35,11 +37,20 @@ public class DataDigest {
     String unalignedMessage = unaligned.getEmailMessage();
     String unalignedCSV = unaligned.getUnalignedAssessmentsCSV();
     
+    CourseGradesComparison grades = new CourseGradesComparison(database, termBinStartDate);
+    grades.run();
+    String nfSciSSChart = grades.getChartFile(0);
+    String elaChart = grades.getChartFile(1);
+    String mathChart = grades.getChartFile(2);
+    String gradesMessage = grades.getEmailMessage();
+    String gradesLinks = grades.getAnalysisLinks();
+    
     EmailDataDigest email = new EmailDataDigest(
       attendanceMessage, attendanceChart, attendanceLinks,
       assmtRawMessage, assmtRawChart,
       assmtRelativeMessage, assmtRelativeChart,
-      unalignedMessage, unalignedChart, unalignedCSV);
+      unalignedMessage, unalignedChart, unalignedCSV,
+      gradesMessage, elaChart, mathChart, nfSciSSChart, gradesLinks);
     
     email.send();
     

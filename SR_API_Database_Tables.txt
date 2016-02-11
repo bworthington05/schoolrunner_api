@@ -66,3 +66,26 @@ SR_STAFF_MEMBER_ID
 ABSENCE_DATE
 ABSENCE_TYPE_ID
 ACTIVE
+
+Table = COURSE_GRADES
+COURSE_GRADE_ID
+COURSE_ID                 
+SR_STUDENT_ID             
+TERM_BIN_ID             
+SCORE                  
+SCORE_OVERRIDE           
+GRADING_SCALE_LEVEL_ID    
+AS_OF                    
+ACTIVE
+
+Table = TERM_BINS
+TERM_BIN_ID
+TERM_ID              
+SR_SCHOOL_ID         
+SHORT_NAME          
+LONG_NAME           
+START_DATE          
+END_DATE            
+ACTIVE          
+
+

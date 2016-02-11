@@ -114,8 +114,8 @@ public class AttendanceComparison {
       
       String query = (
         "SELECT " +
-            "schools.display_name, " +
-            
+            "replace(schools.display_name, 'Pre-K', 'PK'), " +
+
             //for each school, get the number of of specified attendance codes recorded
             
             "SUM(CASE WHEN absence_types.absence_code = 'A' THEN 1 ELSE 0 END), " +
@@ -256,7 +256,7 @@ public class AttendanceComparison {
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
          
       int width = 768; //width of the image
-      int height = 576; //height of the image
+      int height = 475; //height of the image
       File chartFileName = new File(chartFileNameString);
       ChartUtilities.saveChartAsJPEG(chartFileName, chart, width, height);
       
@@ -309,7 +309,7 @@ public class AttendanceComparison {
   public String getEmailMessage() {
     
     String message = "<strong>This chart shows a relative comparison of absence and tardy rates across the " +
-      "network for the date range shown. It is based on daily attendance data recorded in Schoolrunner</strong><br><br>.";
+      "network for the date range shown. It is based on daily attendance data recorded in Schoolrunner.</strong><br><br>.";
     
     return message;
   }

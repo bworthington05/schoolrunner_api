@@ -79,6 +79,29 @@ public class DatabaseSetup {
         " ABSENCE_DATE          TEXT, " +
         " ABSENCE_TYPE_ID       TEXT, " +
         " ACTIVE                TEXT)");
+        
+    private static String courseGradesTableName = "COURSE_GRADES";
+    private static String courseGradesTableStatement = (
+        "(COURSE_GRADE_ID           TEXT    PRIMARY KEY     NOT NULL, " +
+        " COURSE_ID                 TEXT, " +
+        " SR_STUDENT_ID             TEXT, " + 
+        " TERM_BIN_ID               TEXT, " + 
+        " SCORE                     TEXT, " +
+        " SCORE_OVERRIDE            TEXT, " +
+        " GRADING_SCALE_LEVEL_ID    TEXT," + 
+        " AS_OF                     TEXT," + 
+        " ACTIVE                    TEXT)");
+        
+    private static String termBinsTableName = "TERM_BINS";
+    private static String termBinsTableStatement = (
+        "(TERM_BIN_ID           TEXT    PRIMARY KEY     NOT NULL, " +
+        " TERM_ID               TEXT, " + 
+        " SR_SCHOOL_ID          TEXT, " + 
+        " SHORT_NAME            TEXT, " +
+        " LONG_NAME             TEXT, " +
+        " START_DATE            TEXT," + 
+        " END_DATE              TEXT," + 
+        " ACTIVE                TEXT)");
     
     private Login login = new Login();
     
@@ -211,7 +234,7 @@ public class DatabaseSetup {
         absenceTypesAPI.run();
     }
     
-    //method to create absence types table and load in data from API, uses default endpoint from AbsencesAPI class  
+    //method to create absences table and load in data from API, uses default endpoint from AbsencesAPI class  
     public void createAbsencesTable() {
         CreateTable absencesTable = new CreateTable(dbName, absencesTableName, absencesTableStatement);
         absencesTable.run();
@@ -219,12 +242,44 @@ public class DatabaseSetup {
         absencesAPI.run();
     }
     
-    //overloaded method to create absence table and load in data from API, uses custom endpoint   
+    //overloaded method to create absences table and load in data from API, uses custom endpoint   
     public void createAbsencesTable(String endpoint) {
         CreateTable absencesTable = new CreateTable(dbName, absencesTableName, absencesTableStatement);
         absencesTable.run();
         AbsencesAPI absencesAPI = new AbsencesAPI(login.getUsername(), login.getPassword(), dbName, absencesTableName, endpoint);
         absencesAPI.run();
+    }
+    
+    //method to create course grades table and load in data from API, uses default endpoint from CourseGradesAPI class  
+    public void createCourseGradesTable() {
+        CreateTable courseGradesTable = new CreateTable(dbName, courseGradesTableName, courseGradesTableStatement);
+        courseGradesTable.run();
+        CourseGradesAPI courseGradesAPI = new CourseGradesAPI(login.getUsername(), login.getPassword(), dbName, courseGradesTableName);
+        courseGradesAPI.run();
+    }
+    
+    //overloaded method to create course grades table and load in data from API, uses custom endpoint
+    public void createCourseGradesTable(String endpoint) {
+        CreateTable courseGradesTable = new CreateTable(dbName, courseGradesTableName, courseGradesTableStatement);
+        courseGradesTable.run();
+        CourseGradesAPI courseGradesAPI = new CourseGradesAPI(login.getUsername(), login.getPassword(), dbName, courseGradesTableName, endpoint);
+        courseGradesAPI.run();
+    }
+    
+    //method to create term bins table and load in data from API, uses default endpoint from TermBinsAPI class  
+    public void createTermBinsTable() {
+        CreateTable termBinsTable = new CreateTable(dbName, termBinsTableName, termBinsTableStatement);
+        termBinsTable.run();
+        TermBinsAPI termBinsAPI = new TermBinsAPI(login.getUsername(), login.getPassword(), dbName, termBinsTableName);
+        termBinsAPI.run();
+    }
+    
+    //overloaded method to create term bins table and load in data from API, uses custom endpoint
+    public void createTermBinsTable(String endpoint) {
+        CreateTable termBinsTable = new CreateTable(dbName, termBinsTableName, termBinsTableStatement);
+        termBinsTable.run();
+        TermBinsAPI termBinsAPI = new TermBinsAPI(login.getUsername(), login.getPassword(), dbName, termBinsTableName, endpoint);
+        termBinsAPI.run();
     }
     
 } //end class DatabaseSetup

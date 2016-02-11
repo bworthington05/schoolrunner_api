@@ -10,6 +10,9 @@ public class MyColors {
     //semi-transparent orange
     public static final Color ORANGE = new Color(240, 98, 21, 190);
     
+    //semi-transparent yellow
+    public static final Color YELLOW = new Color(225, 225, 34, 190);
+    
     //semi-transparent blue
     public static final Color BLUE = new Color(40, 101, 215, 200);
     
@@ -18,6 +21,9 @@ public class MyColors {
     
     //semi-transparent light green
     public static final Color LIGHT_GREEN = new Color(9, 204, 106, 190);
+    
+    //semi-transparent green
+    public static final Color GREEN = new Color(12, 146, 46, 190);
     
     //semi-transparent light purple
     public static final Color LIGHT_PURPLE = new Color(208, 111, 189, 190);

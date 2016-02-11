@@ -118,7 +118,7 @@ public class AssessmentComparisonRelative {
       
       String query = (
         "SELECT " +
-            "schools.display_name, " +
+            "replace(schools.display_name, 'Pre-K', 'PK'), " +
             
             "IFNULL((((CAST(nf.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0'), " +
 
@@ -304,7 +304,7 @@ public class AssessmentComparisonRelative {
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
          
       int width = 768; //width of the image
-      int height = 576; //height of the image
+      int height = 475; //height of the image
       File chartFileName = new File(chartFileNameString);
       ChartUtilities.saveChartAsJPEG(chartFileName, chart, width, height);
       

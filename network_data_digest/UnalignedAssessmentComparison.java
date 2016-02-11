@@ -116,7 +116,7 @@ public class UnalignedAssessmentComparison {
       
       String query = (
         "SELECT " +
-            "schools.display_name, " +
+            "replace(schools.display_name, 'Pre-K', 'PK'), " +
             
             "IFNULL(nf.assessment_count, '0'), " +
 
@@ -292,7 +292,7 @@ public class UnalignedAssessmentComparison {
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
          
       int width = 768; //width of the image
-      int height = 576; //height of the image
+      int height = 475; //height of the image
       File chartFileName = new File(chartFileNameString);
       ChartUtilities.saveChartAsJPEG(chartFileName, chart, width, height);
       
