@@ -18,6 +18,7 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 
 //calculates the breakdown of course grades for each core content course
 //at each school, generates a .csv and jpeg bar graph
@@ -133,30 +134,33 @@ public class CourseGradesComparison {
           "SELECT " +
               "replace(schools.display_name, 'Pre-K', 'PK'), " +
               
-              "IFNULL(i.grade_count, '0'), " +
+              //for each school, get the number of course grades at a specific level
+              //and divide by the total number of course grades to get the relative percent
+              
+              "(CAST(IFNULL(i.grade_count, '0') AS FLOAT)/total_grades.grade_count), " +
   
-              "IFNULL(ii.grade_count, '0'), " +
+              "(CAST(IFNULL(ii.grade_count, '0') AS FLOAT)/total_grades.grade_count), " +
               
-              "IFNULL(c.grade_count, '0'), " +
+              "(CAST(IFNULL(c.grade_count, '0') AS FLOAT)/total_grades.grade_count), " +
               
-              "IFNULL(b.grade_count, '0'), " +
+              "(CAST(IFNULL(b.grade_count, '0') AS FLOAT)/total_grades.grade_count), " +
               
-              "IFNULL(a.grade_count, '0') " +
+              "(CAST(IFNULL(a.grade_count, '0') AS FLOAT)/total_grades.grade_count) " +
           
           "FROM courses " +
-              "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-              "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-              "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+              "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+              "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+              "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
   
               //sub-query to get # of grades 0 <= i < 40
-              "LEFT OUTER JOIN ( " +
+              "LEFT JOIN ( " +
                   "SELECT " +
                       "courses.sr_school_id, " +
                       "COUNT(courses.sr_school_id) as grade_count " +
                   "FROM courses " +
-                      "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-                      "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-                      "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
                   "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
                   "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
                   "AND (CAST(course_grades.score as FLOAT)) >= 0 " +
@@ -165,14 +169,14 @@ public class CourseGradesComparison {
               ") i ON courses.sr_school_id = i.sr_school_id " +
               
               //sub-query to get # of grades 40 <= ii < 50
-              "LEFT OUTER JOIN ( " +
+              "LEFT JOIN ( " +
                   "SELECT " +
                       "courses.sr_school_id, " +
                       "COUNT(courses.sr_school_id) as grade_count " +
                   "FROM courses " +
-                      "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-                      "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-                      "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
                   "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
                   "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
                   "AND (CAST(course_grades.score as FLOAT)) >= 40 " +
@@ -181,14 +185,14 @@ public class CourseGradesComparison {
               ") ii ON courses.sr_school_id = ii.sr_school_id " +
               
               //sub-query to get # of grades 50 <= c < 75
-              "LEFT OUTER JOIN ( " +
+              "LEFT JOIN ( " +
                   "SELECT " +
                       "courses.sr_school_id, " +
                       "COUNT(courses.sr_school_id) as grade_count " +
                   "FROM courses " +
-                      "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-                      "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-                      "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
                   "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
                   "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
                   "AND (CAST(course_grades.score as FLOAT)) >= 50 " +
@@ -197,14 +201,14 @@ public class CourseGradesComparison {
               ") c ON courses.sr_school_id = c.sr_school_id " +
               
               //sub-query to get # of grades 75 <= b < 90
-              "LEFT OUTER JOIN ( " +
+              "LEFT JOIN ( " +
                   "SELECT " +
                       "courses.sr_school_id, " +
                       "COUNT(courses.sr_school_id) as grade_count " +
                   "FROM courses " +
-                      "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-                      "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-                      "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
                   "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
                   "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
                   "AND (CAST(course_grades.score as FLOAT)) >= 75 " +
@@ -213,20 +217,36 @@ public class CourseGradesComparison {
               ") b ON courses.sr_school_id = b.sr_school_id " +
               
               //sub-query to get # of grades 90 <= a < 200
-              "LEFT OUTER JOIN ( " +
+              "LEFT JOIN ( " +
                   "SELECT " +
                       "courses.sr_school_id, " +
                       "COUNT(courses.sr_school_id) as grade_count " +
                   "FROM courses " +
-                      "LEFT OUTER JOIN course_grades ON courses.course_id = course_grades.course_id " +
-                      "LEFT OUTER JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
-                      "LEFT OUTER JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
                   "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
                   "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
                   "AND (CAST(course_grades.score as FLOAT)) >= 90 " +
                   "AND (CAST(course_grades.score as FLOAT)) < 200 " +
                   "GROUP BY courses.sr_school_id " +
               ") a ON courses.sr_school_id = a.sr_school_id " +
+              
+              //sub-query to get total number of grades
+              "LEFT JOIN ( " +
+                  "SELECT " +
+                      "courses.sr_school_id, " +
+                      "COUNT(courses.sr_school_id) as grade_count " +
+                  "FROM courses " +
+                      "LEFT JOIN course_grades ON courses.course_id = course_grades.course_id " +
+                      "LEFT JOIN schools ON courses.sr_school_id = schools.sr_school_id " +
+                      "LEFT JOIN term_bins ON course_grades.term_bin_id = term_bins.term_bin_id " +
+                  "WHERE course_grades.active = '1' AND courses.course_name IN " + this.courseNames[n] + " " +
+                  "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
+                  "AND (CAST(course_grades.score as FLOAT)) >= 0 " +
+                  "AND (CAST(course_grades.score as FLOAT)) < 200 " +
+                  "GROUP BY courses.sr_school_id " +
+              ") total_grades ON courses.sr_school_id = total_grades.sr_school_id " +
           
           //don't count RAHS, ECC, or RSP
           "WHERE course_grades.active = '1' AND courses.sr_school_id NOT IN ('5','17','18') " +
@@ -309,7 +329,7 @@ public class CourseGradesComparison {
         //make the dashed lines that go across the chart black
         plot.setRangeGridlinePaint(Color.BLACK);
         
-        plot.setBackgroundPaint(Color.LIGHT_GRAY);
+        plot.setBackgroundPaint(Color.WHITE);
         
         //set the color of each series using custom colors from MyColors class
         renderer.setSeriesPaint(0, MyColors.RED);
@@ -332,6 +352,10 @@ public class CourseGradesComparison {
         //set the category labels on the X axis to be written vertically
         CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
         categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+        
+        //generate the value labels for each section of the bar
+        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", NumberFormat.getPercentInstance()));
+        renderer.setBaseItemLabelsVisible(true);
            
         int width = 768; //width of the image
         int height = 475; //height of the image

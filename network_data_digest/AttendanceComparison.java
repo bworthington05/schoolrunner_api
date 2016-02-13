@@ -18,6 +18,7 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.awt.Color;
 import java.util.Scanner;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 
 //summarizes attendance data for network data digest, generates a .csv and jpeg bar graph
 public class AttendanceComparison {
@@ -116,20 +117,26 @@ public class AttendanceComparison {
         "SELECT " +
             "replace(schools.display_name, 'Pre-K', 'PK'), " +
 
-            //for each school, get the number of of specified attendance codes recorded
+            //for each school, get the number of specified attendance codes recorded and divde by the number of student days
+            //to get the relative percent
             
-            "SUM(CASE WHEN absence_types.absence_code = 'A' THEN 1 ELSE 0 END), " +
+            "(CAST(SUM(CASE WHEN absence_types.absence_code = 'A' THEN 1 ELSE 0 END) AS FLOAT)/" +
+                "(active_students.count_of_students*"+ this.numberOfSchoolDays +")), " +
               
-            "SUM(CASE WHEN absence_types.absence_code = 'AE' THEN 1 ELSE 0 END), " +
+            "(CAST(SUM(CASE WHEN absence_types.absence_code = 'AE' THEN 1 ELSE 0 END) AS FLOAT)/" +
+                "(active_students.count_of_students*"+ this.numberOfSchoolDays +")), " +
               
-            "SUM(CASE WHEN absence_types.absence_code = 'T' THEN 1 ELSE 0 END), " +
+            "(CAST(SUM(CASE WHEN absence_types.absence_code = 'T' THEN 1 ELSE 0 END) AS FLOAT)/" +
+                "(active_students.count_of_students*"+ this.numberOfSchoolDays +")), " +
               
-            "SUM(CASE WHEN absence_types.absence_code = 'TE' THEN 1 ELSE 0 END), " +
+            "(CAST(SUM(CASE WHEN absence_types.absence_code = 'TE' THEN 1 ELSE 0 END) AS FLOAST)/" +
+                "(active_students.count_of_students*"+ this.numberOfSchoolDays +")), " +
             
             //subtract sum of tardies & absences from (active student count * # of school days in this range, i.e. "student days") 
-            //to get the value for the top (filler) part of barchart
-            "(active_students.count_of_students*"+ this.numberOfSchoolDays +")" +
-            "-(SUM(CASE WHEN absence_types.absence_code IN ('A','AE','T','TE') THEN 1 ELSE 0 END))" +
+            //to get the number of "presents", then divide by the number of student days to get the relative percent
+            "(CAST(((active_students.count_of_students*"+ this.numberOfSchoolDays +")" +
+            "-(SUM(CASE WHEN absence_types.absence_code IN ('A','AE','T','TE') THEN 1 ELSE 0 END))) AS FLOAT)/" +
+                "(active_students.count_of_students*"+ this.numberOfSchoolDays +"))" +
             
         "FROM absences " +
             "LEFT OUTER JOIN absence_types ON absences.absence_type_id = absence_types.absence_type_id " +
@@ -169,7 +176,7 @@ public class AttendanceComparison {
 	    writer.append(',');
 	    writer.append("# of Tardy Excused");
 	    writer.append(',');
-	    writer.append("Everyone Else");
+	    writer.append("Present");
 	    writer.append('\n');
       
       //loop throw the SQL resultset and save records to the filewriter and jfreechart dataset
@@ -195,17 +202,18 @@ public class AttendanceComparison {
         double double3 = Double.parseDouble(rs.getString(3));
         double double4 = Double.parseDouble(rs.getString(4));
         double double5 = Double.parseDouble(rs.getString(5));
+        
+        //last value is (student days - tardies & absences) = everyone else, AKA "Present"
+        //which is the remaining top part of the stacked barchart (everyone else who wasnt absent or tardy)
         double double6 = Double.parseDouble(rs.getString(6));
         
-        //add each row of the resultset to the dataset (value, school name, attendance type)
-        dataset.addValue(double2, "Absent", rs.getString(1));
-        dataset.addValue(double3, "Absent Excused", rs.getString(1));
-        dataset.addValue(double4, "Tardy", rs.getString(1));
+        //add each row of the resultset to the dataset (value, attendance type, school)
+        //reorder so that these records are in order we want the bars in the graph: P, TE, T, AE, A
+        dataset.addValue(double6, "Present", rs.getString(1));
         dataset.addValue(double5, "Tardy Excused", rs.getString(1));
-        
-        //last value is student days - tardies & absences
-        //which is the remaining top part of the stacked barchart (everyone else who wasnt absent or tardy)
-        dataset.addValue(double6, "Everyone Else", rs.getString(1));
+        dataset.addValue(double4, "Tardy", rs.getString(1));
+        dataset.addValue(double3, "Absent Excused", rs.getString(1));
+        dataset.addValue(double2, "Absent", rs.getString(1));
       }
       
       //make the stacked barchart
@@ -228,17 +236,14 @@ public class AttendanceComparison {
       //make the dashed lines that go across the chart black
       plot.setRangeGridlinePaint(Color.BLACK);
       
-      plot.setBackgroundPaint(Color.LIGHT_GRAY);
+      plot.setBackgroundPaint(Color.WHITE);
       
       //set the color of each series using custom colors from MyColors class
-      renderer.setSeriesPaint(0, MyColors.RED);
-      renderer.setSeriesPaint(1, MyColors.ORANGE);
-      renderer.setSeriesPaint(2, MyColors.BLUE);
-      renderer.setSeriesPaint(3, MyColors.LIGHT_BLUE);
-      renderer.setSeriesPaint(4, MyColors.CLEAR);
-      
-      //don't show the everyone else series in the legend 
-      renderer.setSeriesVisibleInLegend(4, false);
+      renderer.setSeriesPaint(0, MyColors.GREEN);
+      renderer.setSeriesPaint(1, MyColors.LIGHT_GREEN);
+      renderer.setSeriesPaint(2, MyColors.YELLOW);
+      renderer.setSeriesPaint(3, MyColors.ORANGE);
+      renderer.setSeriesPaint(4, MyColors.RED);
       
       //renders each section of a bar as a percent out of 100
       renderer.setRenderAsPercentages(true);
@@ -254,6 +259,10 @@ public class AttendanceComparison {
       //set the category labels on the X axis to be written vertically
       CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+      
+      //generate the value labels for each section of the bar
+      renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", NumberFormat.getPercentInstance()));
+      renderer.setBaseItemLabelsVisible(true);
          
       int width = 768; //width of the image
       int height = 475; //height of the image

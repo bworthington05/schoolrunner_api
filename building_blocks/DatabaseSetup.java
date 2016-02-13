@@ -102,6 +102,18 @@ public class DatabaseSetup {
         " START_DATE            TEXT," + 
         " END_DATE              TEXT," + 
         " ACTIVE                TEXT)");
+        
+    private static String assessmentStudentsTableName = "ASSESSMENT_STUDENTS";
+    private static String assessmentStudentsTableStatement = (
+        "(ASSESSMENT_STUDENT_ID TEXT    PRIMARY KEY     NOT NULL, " +
+        " ASSESSMENT_ID         TEXT," + 
+        " SR_STUDENT_ID         TEXT, " + 
+        " AVG_SCORE             TEXT, " + 
+        " SCORE_OVERRIDE        TEXT, " +
+        " GRADE_BOOK_SCORE      TEXT, " +
+        " MISSING               TEXT, " +
+        " FROM_DATE             TEXT, " +
+        " ACTIVE                TEXT)");
     
     private Login login = new Login();
     
@@ -280,6 +292,22 @@ public class DatabaseSetup {
         termBinsTable.run();
         TermBinsAPI termBinsAPI = new TermBinsAPI(login.getUsername(), login.getPassword(), dbName, termBinsTableName, endpoint);
         termBinsAPI.run();
+    }
+    
+    //method to create assessment-students table and load in data from API, uses default endpoint from AssessmentStudentsAPI class  
+    public void createAssessmentStudentsTable() {
+        CreateTable assessmentStudentsTable = new CreateTable(dbName, assessmentStudentsTableName, assessmentStudentsTableStatement);
+        assessmentStudentsTable.run();
+        AssessmentStudentsAPI assessmentStudentsAPI = new AssessmentStudentsAPI(login.getUsername(), login.getPassword(), dbName, assessmentStudentsTableName);
+        assessmentStudentsAPI.run();
+    }
+    
+    //overloaded method to create assessment-students table and load in data from API, uses custom endpoint
+    public void createAssessmentStudentsTable(String endpoint) {
+        CreateTable assessmentStudentsTable = new CreateTable(dbName, assessmentStudentsTableName, assessmentStudentsTableStatement);
+        assessmentStudentsTable.run();
+        AssessmentStudentsAPI assessmentStudentsAPI = new AssessmentStudentsAPI(login.getUsername(), login.getPassword(), dbName, assessmentStudentsTableName, endpoint);
+        assessmentStudentsAPI.run();
     }
     
 } //end class DatabaseSetup

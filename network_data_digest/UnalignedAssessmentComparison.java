@@ -18,6 +18,7 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 
 //summarizes the number of unaligned assessments (missing objectives) in core content subjects
 //at each school, generates a .csv and jpeg bar graph
@@ -278,7 +279,7 @@ public class UnalignedAssessmentComparison {
       //make the dashed lines that go across the chart black
       plot.setRangeGridlinePaint(Color.BLACK);
       
-      plot.setBackgroundPaint(Color.LIGHT_GRAY);
+      plot.setBackgroundPaint(Color.WHITE);
       
       //set the color of each series using custom colors from MyColors class
       renderer.setSeriesPaint(0, MyColors.LIGHT_PURPLE);
@@ -290,6 +291,10 @@ public class UnalignedAssessmentComparison {
       //set the category labels on the X axis to be written vertically
       CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+      
+      //generate the value labels for each section of the bar
+      renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+      renderer.setBaseItemLabelsVisible(true);
          
       int width = 768; //width of the image
       int height = 475; //height of the image

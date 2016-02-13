@@ -7,13 +7,13 @@ public class Tester {
   public static void main(String args[]) {
     
     //file path for database
-    String dbName = "/home/ubuntu/workspace/databases/SRDB.db";
+    String dbName = "/home/ubuntu/workspace/databases/SRDB1.db";
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    AttendanceComparison att = new AttendanceComparison(database, "2016-02-01", "2016-02-10");
+    AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-01-01", "2016-02-10", "2015-12-19");
     
-    String a = att.run();
+    String a = assmt.run();
     
     //CourseGradesComparison courseGrades = new CourseGradesComparison(database, "2015-12-19");
     

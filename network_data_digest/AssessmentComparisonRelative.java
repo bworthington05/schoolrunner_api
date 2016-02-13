@@ -18,8 +18,9 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 
-//calculates the relative number of teacher-created assessments (based on student count)
+//calculates the average number of assessment results per student
 //for each core content course at each school, generates a .csv and jpeg bar graph
 public class AssessmentComparisonRelative {
   
@@ -31,6 +32,12 @@ public class AssessmentComparisonRelative {
   private String maxDate;
   private Date maxDateDate;
   private String prettyMaxDate;
+  
+  //used in SQL query to get list of term-bin IDs for the custom Assessment-Students endpoint
+  private String termBinStartDate;
+  
+  //use to store a list of term-bin IDs that will be appened to Assessment-Students endpoint URL
+  private String termBinsIDList;
   
   private SimpleDateFormat simpleDateFormat;
   private SimpleDateFormat prettyDateFormat;
@@ -51,12 +58,13 @@ public class AssessmentComparisonRelative {
   //file that holds a list of all the core content course names (required for SQL query)
   private String courseListFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/core_content_courses.txt";
   
-  //constructor that requires the database and String minDate & maxDate (yyyy-MM-dd) for API parameters
+  //constructor that requires the database and String minDate & maxDate & termBinStartDate (yyyy-MM-dd) for API parameters
   //then takes care of some formatting stuff for minDate and maxDate
-  public AssessmentComparisonRelative(DatabaseSetup database, String minDate, String maxDate) {
+  public AssessmentComparisonRelative(DatabaseSetup database, String minDate, String maxDate, String termBinStartDate) {
     this.database = database;
     this.minDate = minDate;
     this.maxDate = maxDate;
+    this.termBinStartDate = termBinStartDate;
     this.dbName = this.database.getDatabaseName();
 
     this.simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -105,6 +113,17 @@ public class AssessmentComparisonRelative {
     this.database.createCoursesTable();
     this.database.createSchoolsTable();
     this.database.createStudentsTable(studentsEndpoint);
+    this.database.createTermBinsTable();
+    
+    //get String list of term_bin_ids
+    getTermBinIDs();
+    
+    //custom Assessment-Students endpoint url that includes the parameters for active=1 and term_bin_ids
+    String assessmentStudentsEndpoint = "https://renew.schoolrunner.org/api/v1/assessment-students/?limit=30000&active=1&term_bin_ids=" +
+      this.termBinsIDList;
+    
+    //connect to Assessment-Students API AFTER the custom endpoint is updated  
+    this.database.createAssessmentStudentsTable(assessmentStudentsEndpoint);
     
     Connection c = null;
     Statement stmt = null;
@@ -120,81 +139,101 @@ public class AssessmentComparisonRelative {
         "SELECT " +
             "replace(schools.display_name, 'Pre-K', 'PK'), " +
             
-            "IFNULL((((CAST(nf.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0'), " +
-
-            "IFNULL((((CAST(ela.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0'), " +
+            //get the number of student assessment results for each subject
+            //and divide by the active student count to get the number of results per student in each subject
+            //round the result to 2 decimal places
             
-            "IFNULL((((CAST(math.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0'), " +
+            "ROUND((CAST(IFNULL(nf.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
             
-            "IFNULL((((CAST(sci.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0'), " +
+            "ROUND((CAST(IFNULL(ela.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2)," +
             
-            "IFNULL((((CAST(ss.assessment_count AS FLOAT)) / active_students.count_of_students) * 100), '0') " +
+            "ROUND((CAST(IFNULL(math.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
             
-        "FROM assessments " +
+            "ROUND((CAST(IFNULL(sci.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
+            
+            "ROUND((CAST(IFNULL(ss.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2) " +
+            
+        "FROM assessment_students " +
+            "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
             "LEFT OUTER JOIN schools ON assessments.sr_school_id = schools.sr_school_id " +
             
-            //sub-query to get # of Nonfiction assessments for each school
+            //sub-query to get # of Nonfiction assessment student results for each school
             "LEFT OUTER JOIN ( " +
                 "SELECT " +
                     "assessments.sr_school_id, " +
                     "COUNT(assessments.sr_school_id) as assessment_count " +
-                "FROM assessments " +
+                "FROM assessment_students " +
+                  "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
                   "LEFT OUTER JOIN courses ON assessments.course_id = courses.course_id " +
                 "WHERE assessments.active = '1' AND courses.course_name IN " + this.nfCourseList + " " +
                 //don't count District Benchmarks (12) or MLQs (8)
                 "AND assessments.assessment_type_id NOT IN ('12','8') " +
+                "AND assessment_students.missing = '0'" +
+                "AND assessment_students.active = '1'" +
                 "GROUP BY assessments.sr_school_id " +
             ") nf ON assessments.sr_school_id = nf.sr_school_id " +
             
-            //sub-query to get # of ELA assessments for each school
+            //sub-query to get # of ELA assessment student results for each schooll
             "LEFT OUTER JOIN ( " +
                 "SELECT " +
                     "assessments.sr_school_id, " +
                     "COUNT(assessments.sr_school_id) as assessment_count " +
-                "FROM assessments " +
+                "FROM assessment_students " +
+                  "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
                   "LEFT OUTER JOIN courses ON assessments.course_id = courses.course_id " +
                 "WHERE assessments.active = '1' AND courses.course_name IN " + this.elaCourseList + " " +
                 //don't count District Benchmarks (12) or MLQs (8)
                 "AND assessments.assessment_type_id NOT IN ('12','8') " +
+                "AND assessment_students.missing = '0'" +
+                "AND assessment_students.active = '1'" +
                 "GROUP BY assessments.sr_school_id " +
             ") ela ON assessments.sr_school_id = ela.sr_school_id " +
             
-            //sub-query to get # of math assessments for each school
+            //sub-query to get # of math assessment student results for each school
             "LEFT OUTER JOIN ( " +
                 "SELECT " +
                     "assessments.sr_school_id, " +
                     "COUNT(assessments.sr_school_id) as assessment_count " +
-                "FROM assessments " +
+                "FROM assessment_students " +
+                  "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
                   "LEFT OUTER JOIN courses ON assessments.course_id = courses.course_id " +
                 "WHERE assessments.active = '1' AND courses.course_name IN " + this.mathCourseList + " " +
                 //don't count District Benchmarks (12) or MLQs (8)
                 "AND assessments.assessment_type_id NOT IN ('12','8') " +
+                "AND assessment_students.missing = '0'" +
+                "AND assessment_students.active = '1'" +
                 "GROUP BY assessments.sr_school_id " +
             ") math ON assessments.sr_school_id = math.sr_school_id " +
             
-            //sub-query to get # of science assessments for each school
+            //sub-query to get # of science assessment student results for each school
             "LEFT OUTER JOIN ( " +
                 "SELECT " +
                     "assessments.sr_school_id, " +
                     "COUNT(assessments.sr_school_id) as assessment_count " +
-                "FROM assessments " +
+                "FROM assessment_students " +
+                  "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
                   "LEFT OUTER JOIN courses ON assessments.course_id = courses.course_id " +
                 "WHERE assessments.active = '1' AND courses.course_name IN " + this.sciCourseList + " " +
                 //don't count District Benchmarks (12) or MLQs (8)
                 "AND assessments.assessment_type_id NOT IN ('12','8') " +
+                "AND assessment_students.missing = '0'" +
+                "AND assessment_students.active = '1'" +
                 "GROUP BY assessments.sr_school_id " +
             ") sci ON assessments.sr_school_id = sci.sr_school_id " +
             
-            //sub-query to get # of social studies assessments for each school
+            //sub-query to get # of social studies assessment student results for each school
             "LEFT OUTER JOIN ( " +
                 "SELECT " +
                     "assessments.sr_school_id, " +
                     "COUNT(assessments.sr_school_id) as assessment_count " +
-                "FROM assessments " +
+                "FROM assessment_students " +
+                  "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
                   "LEFT OUTER JOIN courses ON assessments.course_id = courses.course_id " +
                 "WHERE assessments.active = '1' AND courses.course_name IN " + this.ssCourseList + " " +
                 //don't count District Benchmarks (12) or MLQs (8)
                 "AND assessments.assessment_type_id NOT IN ('12','8') " +
+                "AND assessment_students.missing = '0'" +
+                "AND assessment_students.active = '1'" +
                 "GROUP BY assessments.sr_school_id " +
             ") ss ON assessments.sr_school_id = ss.sr_school_id " +
         
@@ -212,6 +251,8 @@ public class AssessmentComparisonRelative {
         "WHERE assessments.active = '1' AND assessments.sr_school_id NOT IN ('5','17','18') " +
         //don't count District Benchmarks (12) or MLQs (8)
         "AND assessments.assessment_type_id NOT IN ('12','8') " +
+        "AND assessment_students.missing = '0'" +
+        "AND assessment_students.active = '1'" +
         "GROUP BY schools.display_name " +
         "ORDER BY schools.ps_school_id, schools.display_name; ");
 
@@ -273,9 +314,9 @@ public class AssessmentComparisonRelative {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Network Assessment Comparison (Relative #)\n" + this.prettyMinDate + " - " + this.prettyMaxDate,
+        "Teacher-Created Assessment Rate Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate,
         "Small School", //legend label
-        "Avg # of Teacher-Created Assmts per 100 Students", //vertical axis label 
+        "Avg # of Assessment Results per Student", //vertical axis label 
         dataset, //dataset being used
         PlotOrientation.VERTICAL, //bar orientation
         true, //include legend
@@ -290,7 +331,7 @@ public class AssessmentComparisonRelative {
       //make the dashed lines that go across the chart black
       plot.setRangeGridlinePaint(Color.BLACK);
       
-      plot.setBackgroundPaint(Color.LIGHT_GRAY);
+      plot.setBackgroundPaint(Color.WHITE);
       
       //set the color of each series using custom colors from MyColors class
       renderer.setSeriesPaint(0, MyColors.LIGHT_PURPLE);
@@ -302,6 +343,10 @@ public class AssessmentComparisonRelative {
       //set the category labels on the X axis to be written vertically
       CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+      
+      //generate the value labels for each section of the bar
+      renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+      renderer.setBaseItemLabelsVisible(true);
          
       int width = 768; //width of the image
       int height = 475; //height of the image
@@ -389,10 +434,60 @@ public class AssessmentComparisonRelative {
   //method to get the String message that should go above the chart in an email
   public String getEmailMessage() {
     
-    String message = "<strong>This chart shows the relative number of <u>teacher-created</u> assessments at each school. " + 
-      "Specifically, it shows the average number of assessments per 100 students at the school.</strong><br><br>.";
+    String message = "<strong>This chart shows the average number of <u>teacher-created</u> assessment results " + 
+      "recorded per student in each core-content subject during the given date range.</strong><br><br>.";
     
     return message;
   }
+  
+  //method to populate the String list of term_bin_ids which will be appended to the Assessment-Students API endpoint
+  public void getTermBinIDs() {
+  
+    Connection c = null;
+    Statement stmt = null;
+    
+    try {
+      
+      Class.forName("org.sqlite.JDBC");
+      c = DriverManager.getConnection("jdbc:sqlite:" + this.dbName);
+      c.setAutoCommit(false);
+      System.out.println("opened database successfully");
+      
+      String query = (
+        "SELECT " +
+            "term_bin_id " +
+            
+        "FROM term_bins " +
+        "WHERE term_bins.start_date = '" + this.termBinStartDate + "'; ");
+
+      stmt = c.createStatement();
+      ResultSet rs = stmt.executeQuery(query);
+      System.out.println("SQLite query complete");
+      
+      this.termBinsIDList = "";
+      
+      //loop throw the SQL resultset
+      while (rs.next()) {
+          
+        //add each term_bin_id to the termBinsIDList
+        this.termBinsIDList += rs.getString(1);
+        this.termBinsIDList += ",";
+      }
+      
+      //remove the very last comma
+      this.termBinsIDList = this.termBinsIDList.substring(0, this.termBinsIDList.length() - 1);
+      
+      rs.close();
+      stmt.close();
+      c.close();
+      
+      System.out.println("finished getting termbin IDs: " + this.termBinsIDList + "\n");
+      
+    } catch (Exception e) {
+      System.err.println(e.getClass().getName() + ": " + e.getMessage());
+      System.exit(0);
+    }
+    
+  } //end getTermBinIDs method
   
 } //end class

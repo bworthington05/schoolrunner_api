@@ -18,6 +18,7 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 
 //calculates the raw number of teacher-created assessments for each core content course
 //at each school, generates a .csv and jpeg bar graph
@@ -276,7 +277,7 @@ public class AssessmentComparisonRaw {
       //make the dashed lines that go across the chart black
       plot.setRangeGridlinePaint(Color.BLACK);
       
-      plot.setBackgroundPaint(Color.LIGHT_GRAY);
+      plot.setBackgroundPaint(Color.WHITE);
       
       //set the color of each series using custom colors from MyColors class
       renderer.setSeriesPaint(0, MyColors.LIGHT_PURPLE);
@@ -288,6 +289,10 @@ public class AssessmentComparisonRaw {
       //set the category labels on the X axis to be written vertically
       CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
       categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_90);
+      
+      //generate the value labels for each section of the bar
+      renderer.setBaseItemLabelGenerator();
+      renderer.setBaseItemLabelsVisible(true);
          
       int width = 768; //width of the image
       int height = 475; //height of the image

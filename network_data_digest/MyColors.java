@@ -14,7 +14,7 @@ public class MyColors {
     public static final Color YELLOW = new Color(225, 225, 34, 190);
     
     //semi-transparent blue
-    public static final Color BLUE = new Color(40, 101, 215, 200);
+    public static final Color BLUE = new Color(40, 101, 215, 190);
     
     //semi-transparent light blue
     public static final Color LIGHT_BLUE = new Color(48, 197, 197, 190);
