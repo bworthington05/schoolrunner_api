@@ -19,6 +19,7 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.title.TextTitle;
 
 //summarizes the number of unaligned assessments (missing objectives) in core content subjects
 //at each school, generates a .csv and jpeg bar graph
@@ -52,9 +53,13 @@ public class UnalignedAssessmentComparison {
   //file that holds a list of all the core content course names (required for SQL query)
   private String courseListFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/core_content_courses.txt";
   
+  //the "order by" for SQL query (also the order of the bars in the chart)
+  private String SQLiteOrderBy;  
+  
   //constructor that requires the database and String minDate & maxDate (yyyy-MM-dd) for API parameters
+  //also requires a String "order by" statement for the SQL query
   //then takes care of some formatting stuff for minDate and maxDate
-  public UnalignedAssessmentComparison(DatabaseSetup database, String minDate, String maxDate) {
+  public UnalignedAssessmentComparison(DatabaseSetup database, String minDate, String maxDate, String SQLiteOrderBy) {
     this.database = database;
     this.minDate = minDate;
     this.maxDate = maxDate;
@@ -76,6 +81,8 @@ public class UnalignedAssessmentComparison {
     //make Strings for minDate & maxDate using the pretty date format
     this.prettyMinDate = prettyDateFormat.format(this.minDateDate);
     this.prettyMaxDate = prettyDateFormat.format(this.maxDateDate);
+    
+    this.SQLiteOrderBy = SQLiteOrderBy;
   } //end constructor
   
   //method that crunches assessment data, makes a stacked barchart JPEG, and returns a String file path of the JPEG
@@ -202,7 +209,7 @@ public class UnalignedAssessmentComparison {
         //don't count District Benchmarks (12) or MLQs (8)
         "AND assessments.assessment_type_id NOT IN ('12','8') " +
         "GROUP BY schools.display_name " +
-        "ORDER BY schools.ps_school_id, schools.display_name; ");
+        "ORDER BY " + this.SQLiteOrderBy + "; ");
 
       stmt = c.createStatement();
       ResultSet rs = stmt.executeQuery(query);
@@ -262,7 +269,7 @@ public class UnalignedAssessmentComparison {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Assessments Missing Objectives (Raw #)\n" + this.prettyMinDate + " - " + this.prettyMaxDate,
+        null, //graph title is null (will be set later)
         "Small School", //legend label
         "# of Teacher-Created Assmts Missing Objectives", //vertical axis label 
         dataset, //dataset being used
@@ -270,6 +277,13 @@ public class UnalignedAssessmentComparison {
         true, //include legend
         true, //generate tooltips
         false); //generate URLs
+      
+      //title of the chart
+      String titleString = "Assessments Missing Objectives (Raw #)\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
+      
+      //format the title
+      TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);
+      chart.setTitle(title);      
       
       //create renderer to customize the chart
       CategoryPlot plot = chart.getCategoryPlot();
@@ -295,6 +309,7 @@ public class UnalignedAssessmentComparison {
       //generate the value labels for each section of the bar
       renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
       renderer.setBaseItemLabelsVisible(true);
+      renderer.setBaseItemLabelFont(MyFonts.ITEM_LABEL_FONT);
          
       int width = 768; //width of the image
       int height = 475; //height of the image

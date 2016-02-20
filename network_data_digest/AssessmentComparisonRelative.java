@@ -19,6 +19,7 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.title.TextTitle;
 
 //calculates the average number of assessment results per student
 //for each core content course at each school, generates a .csv and jpeg bar graph
@@ -58,9 +59,13 @@ public class AssessmentComparisonRelative {
   //file that holds a list of all the core content course names (required for SQL query)
   private String courseListFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/core_content_courses.txt";
   
+  //the "order by" for SQL query (also the order of the bars in the chart)
+  private String SQLiteOrderBy;  
+  
   //constructor that requires the database and String minDate & maxDate & termBinStartDate (yyyy-MM-dd) for API parameters
+  //also requires a String "order by" statement for the SQL query
   //then takes care of some formatting stuff for minDate and maxDate
-  public AssessmentComparisonRelative(DatabaseSetup database, String minDate, String maxDate, String termBinStartDate) {
+  public AssessmentComparisonRelative(DatabaseSetup database, String minDate, String maxDate, String termBinStartDate, String SQLiteOrderBy) {
     this.database = database;
     this.minDate = minDate;
     this.maxDate = maxDate;
@@ -83,6 +88,8 @@ public class AssessmentComparisonRelative {
     //make Strings for minDate & maxDate using the pretty date format
     this.prettyMinDate = prettyDateFormat.format(this.minDateDate);
     this.prettyMaxDate = prettyDateFormat.format(this.maxDateDate);
+    
+    this.SQLiteOrderBy = SQLiteOrderBy;
   } //end constructor
   
   //method that crunches assessment data, makes a stacked barchart JPEG, and returns a String file path of the JPEG
@@ -141,17 +148,17 @@ public class AssessmentComparisonRelative {
             
             //get the number of student assessment results for each subject
             //and divide by the active student count to get the number of results per student in each subject
-            //round the result to 2 decimal places
+            //round the result to 0 decimal places
             
-            "ROUND((CAST(IFNULL(nf.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
+            "ROUND((CAST(IFNULL(nf.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 0), " +
             
-            "ROUND((CAST(IFNULL(ela.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2)," +
+            "ROUND((CAST(IFNULL(ela.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 0)," +
             
-            "ROUND((CAST(IFNULL(math.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
+            "ROUND((CAST(IFNULL(math.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 0), " +
             
-            "ROUND((CAST(IFNULL(sci.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2), " +
+            "ROUND((CAST(IFNULL(sci.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 0), " +
             
-            "ROUND((CAST(IFNULL(ss.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 2) " +
+            "ROUND((CAST(IFNULL(ss.assessment_count, '0') AS FLOAT)/active_students.count_of_students), 0) " +
             
         "FROM assessment_students " +
             "LEFT OUTER JOIN assessments ON assessment_students.assessment_id = assessments.assessment_id " +
@@ -254,7 +261,7 @@ public class AssessmentComparisonRelative {
         "AND assessment_students.missing = '0'" +
         "AND assessment_students.active = '1'" +
         "GROUP BY schools.display_name " +
-        "ORDER BY schools.ps_school_id, schools.display_name; ");
+        "ORDER BY " + this.SQLiteOrderBy + "; ");
 
       stmt = c.createStatement();
       ResultSet rs = stmt.executeQuery(query);
@@ -314,7 +321,7 @@ public class AssessmentComparisonRelative {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Teacher-Created Assessment Rate Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate,
+        null, //graph title is null (will be set later)
         "Small School", //legend label
         "Avg # of Assessment Results per Student", //vertical axis label 
         dataset, //dataset being used
@@ -322,6 +329,13 @@ public class AssessmentComparisonRelative {
         true, //include legend
         true, //generate tooltips
         false); //generate URLs
+      
+      //title of the chart
+      String titleString = "Teacher-Created Assessment Rate Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
+      
+      //format the title
+      TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);
+      chart.setTitle(title);
       
       //create renderer to customize the chart
       CategoryPlot plot = chart.getCategoryPlot();
@@ -347,6 +361,7 @@ public class AssessmentComparisonRelative {
       //generate the value labels for each section of the bar
       renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
       renderer.setBaseItemLabelsVisible(true);
+      renderer.setBaseItemLabelFont(MyFonts.ITEM_LABEL_FONT);
          
       int width = 768; //width of the image
       int height = 475; //height of the image

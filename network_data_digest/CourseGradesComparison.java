@@ -19,6 +19,7 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.util.Scanner;
 import java.awt.Color;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.title.TextTitle;
 
 //calculates the breakdown of course grades for each core content course
 //at each school, generates a .csv and jpeg bar graph
@@ -71,8 +72,12 @@ public class CourseGradesComparison {
   //file that holds a list of all the core content course names (required for SQL query)
   private String courseListFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/core_content_courses.txt";
   
+  //the "order by" for SQL query (also the order of the bars in the chart)
+  private String SQLiteOrderBy;  
+  
   //constructor that requires the database and termBinStartDate ("yyyy-MM-dd") then takes care of some formatting stuff for today's date
-  public CourseGradesComparison(DatabaseSetup database, String termBinStartDate) {
+  //also requires a String "order by" statement for the SQL query
+  public CourseGradesComparison(DatabaseSetup database, String termBinStartDate, String SQLiteOrderBy) {
     this.database = database;
     this.dbName = this.database.getDatabaseName();
     
@@ -88,6 +93,8 @@ public class CourseGradesComparison {
     
     //make String for today's date using the pretty date format
     this.prettyToday = prettyDateFormat.format(this.todaysDate);
+    
+    this.SQLiteOrderBy = SQLiteOrderBy;
   } //end constructor
   
   //this method executes a loop for each subject- it does a SQL query to get course grades for that subject
@@ -252,7 +259,7 @@ public class CourseGradesComparison {
           "WHERE course_grades.active = '1' AND courses.sr_school_id NOT IN ('5','17','18') " +
           "AND term_bins.start_date = '" + this.termBinStartDate + "' " +
           "GROUP BY schools.display_name " +
-          "ORDER BY schools.ps_school_id, schools.display_name; ");
+          "ORDER BY " + this.SQLiteOrderBy + "; ");
   
         stmt = c.createStatement();
         ResultSet rs = stmt.executeQuery(query);
@@ -312,7 +319,7 @@ public class CourseGradesComparison {
         
         //make the stacked barchart
         JFreeChart chart = ChartFactory.createStackedBarChart(
-          this.subjectNames[n] + " Course Grades Comparison\n as of " + this.prettyToday,
+          null, //graph title is null (will be set later)
           "Small School", //legend label
           "% of Students", //vertical axis label 
           dataset, //dataset being used
@@ -320,6 +327,13 @@ public class CourseGradesComparison {
           true, //include legend
           true, //generate tooltips
           false); //generate URLs
+          
+        //title of the chart
+        String titleString = this.subjectNames[n] + " Course Grades Comparison\n as of " + this.prettyToday;
+        
+        //format the title
+        TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);
+        chart.setTitle(title);
         
         //create renderer to customize the chart
         CategoryPlot plot = chart.getCategoryPlot();
@@ -356,6 +370,7 @@ public class CourseGradesComparison {
         //generate the value labels for each section of the bar
         renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", NumberFormat.getPercentInstance()));
         renderer.setBaseItemLabelsVisible(true);
+        renderer.setBaseItemLabelFont(MyFonts.ITEM_LABEL_FONT);
            
         int width = 768; //width of the image
         int height = 475; //height of the image

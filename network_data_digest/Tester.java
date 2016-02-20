@@ -11,9 +11,31 @@ public class Tester {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-01-01", "2016-02-10", "2015-12-19");
+    //String SQLiteOrderBy = "schools.ps_school_id, schools.display_name";
     
+    String SQLiteOrderBy = 
+    
+    "CASE schools.display_name " +
+         "WHEN 'RCAA - Pre-K to 2nd' THEN 1 " +
+         "WHEN 'RCAA - 3rd to 4th' THEN 2 " +
+         "WHEN 'RCAA - 5th to 8th' THEN 3 " +
+         "WHEN 'STA - Pre-K to 2nd' THEN 4 " +
+         "WHEN 'STA - 3rd to 8th' THEN 5 " +
+         "WHEN 'DTA - Pre-K to 2nd' THEN 6 " +
+         "WHEN 'DTA - 3rd to 5th' THEN 7 " +
+         "WHEN 'DTA - 6th to 8th' THEN 8 " +
+         "WHEN 'SCH - Pre-K to 3rd' THEN 9 " +
+         "WHEN 'SCH - 4th to 5th' THEN 10 " +
+         "WHEN 'SCH - 6th to 8th' THEN 11 " +
+         "WHEN 'MCPA - Pre-K to 4th' THEN 12 " +
+         "WHEN 'MCPA - 5th to 8th' THEN 13 " +
+         "END";
+         
+    AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-01-01", "2016-02-10", "2015-12-19", SQLiteOrderBy);
     String a = assmt.run();
+    
+    AttendanceComparison att = new AttendanceComparison(database, "2016-02-01", "2016-02-07", SQLiteOrderBy);
+    att.run();
     
     //CourseGradesComparison courseGrades = new CourseGradesComparison(database, "2015-12-19");
     

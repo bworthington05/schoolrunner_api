@@ -8,39 +8,58 @@ public class DataDigest {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    String attMinDate = "2016-02-01";
-    String attMaxDate = "2016-02-07";
+    String attMinDate = "2016-02-15";
+    String attMaxDate = "2016-02-20";
     
     String assmtMinDate = "2016-01-06";
-    String assmtMaxDate = "2016-02-07";
+    String assmtMaxDate = "2016-02-20";
     
     String termBinStartDate = "2015-12-19";
     
+    String SQLiteOrderBy = 
+    "CASE schools.display_name " +
+         "WHEN 'RCAA - Pre-K to 2nd' THEN 1 " +
+         "WHEN 'RCAA - 3rd to 4th' THEN 2 " +
+         "WHEN 'RCAA - 5th to 8th' THEN 3 " +
+         "WHEN 'STA - Pre-K to 2nd' THEN 4 " +
+         "WHEN 'STA - 3rd to 8th' THEN 5 " +
+         "WHEN 'DTA - Pre-K to 2nd' THEN 6 " +
+         "WHEN 'DTA - 3rd to 5th' THEN 7 " +
+         "WHEN 'DTA - 6th to 8th' THEN 8 " +
+         "WHEN 'SCH - Pre-K to 3rd' THEN 9 " +
+         "WHEN 'SCH - 4th to 5th' THEN 10 " +
+         "WHEN 'SCH - 6th to 8th' THEN 11 " +
+         "WHEN 'MCPA - Pre-K to 4th' THEN 12 " +
+         "WHEN 'MCPA - 5th to 8th' THEN 13 " +
+         "END";
+    
     //do the attendance part of the data digest
-    AttendanceComparison attendance = new AttendanceComparison(database, attMinDate, attMaxDate);
+    AttendanceComparison attendance = new AttendanceComparison(database, attMinDate, attMaxDate, SQLiteOrderBy);
     String attendanceMessage = attendance.getEmailMessage();
     String attendanceChart = attendance.run(); 
     
     //do the assessment rate part
-    AssessmentComparisonRelative assmtRelative = new AssessmentComparisonRelative(database, assmtMinDate, assmtMaxDate, termBinStartDate);
+    AssessmentComparisonRelative assmtRelative = new AssessmentComparisonRelative(database, assmtMinDate, 
+      assmtMaxDate, termBinStartDate, SQLiteOrderBy);
     String assessmentMessage = assmtRelative.getEmailMessage();
     String assessmentChart = assmtRelative.run();
     
     //do the unaligned assessment part
-    UnalignedAssessmentComparison unaligned = new UnalignedAssessmentComparison(database, assmtMinDate, assmtMaxDate);
+    UnalignedAssessmentComparison unaligned = new UnalignedAssessmentComparison(database, assmtMinDate,
+      assmtMaxDate, SQLiteOrderBy);
     String unalignedMessage = unaligned.getEmailMessage();
     String unalignedChart = unaligned.run(); 
     String unalignedCSV = unaligned.getUnalignedAssessmentsCSV();
     
     //do the course grades part
-    CourseGradesComparison grades = new CourseGradesComparison(database, termBinStartDate);
+    CourseGradesComparison grades = new CourseGradesComparison(database, termBinStartDate, SQLiteOrderBy);
     grades.run();
     String gradesMessage = grades.getEmailMessage(); 
     String nfSciSSChart = grades.getChartFile(0); 
     String elaChart = grades.getChartFile(1); 
     String mathChart = grades.getChartFile(2);
     
-    String subject = "data digest 4.0";
+    String subject = "data digest test 2/19/16";
     
     //how the body of the email is organized
     String htmlText = 

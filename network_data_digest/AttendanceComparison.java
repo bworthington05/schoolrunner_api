@@ -19,6 +19,7 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import java.awt.Color;
 import java.util.Scanner;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.title.TextTitle;
 
 //summarizes attendance data for network data digest, generates a .csv and jpeg bar graph
 public class AttendanceComparison {
@@ -48,9 +49,13 @@ public class AttendanceComparison {
   //file that holds a list of all in session school days
   private String inSessionDaysFile = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/import_files/in_session_days.txt";
   
+  //the "order by" for SQL query (also the order of the bars in the chart)
+  private String SQLiteOrderBy;
+  
   //constructor that requires the database and String minDate & maxDate (yyyy-MM-dd) for API parameters
+  //also requires a String "order by" statement for the SQL query
   //then takes care of some formatting stuff for minDate and maxDate
-  public AttendanceComparison(DatabaseSetup database, String minDate, String maxDate) {
+  public AttendanceComparison(DatabaseSetup database, String minDate, String maxDate, String SQLiteOrderBy) {
     this.database = database;
     this.minDate = minDate;
     this.maxDate = maxDate;
@@ -72,6 +77,8 @@ public class AttendanceComparison {
     //make Strings for minDate & maxDate using the pretty date format
     this.prettyMinDate = prettyDateFormat.format(this.minDateDate);
     this.prettyMaxDate = prettyDateFormat.format(this.maxDateDate);
+    
+    this.SQLiteOrderBy = SQLiteOrderBy;
   } //end constructor
   
   //method that crunches attendance data, makes a stacked barchart JPEG, and returns a String file path of the JPEG
@@ -154,7 +161,7 @@ public class AttendanceComparison {
 
         "WHERE absences.active = '1' AND absences.sr_school_id NOT IN ('5','17','18') " +
         "GROUP BY schools.display_name " +
-        "ORDER BY schools.ps_school_id, schools.display_name; ");
+        "ORDER BY " + this.SQLiteOrderBy + "; ");
 
       stmt = c.createStatement();
       ResultSet rs = stmt.executeQuery(query);
@@ -218,8 +225,7 @@ public class AttendanceComparison {
       
       //make the stacked barchart
       JFreeChart chart = ChartFactory.createStackedBarChart(
-        "Network Attendance Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate + 
-          " (" + this.numberOfSchoolDays + " School Days)", //graph title
+        null, //graph title is null (will be set later)
         "Small School", //legend label
         "Avg % of Students per Day", //vertical axis label 
         dataset, //dataset being used
@@ -227,6 +233,14 @@ public class AttendanceComparison {
         true, //include legend
         true, //generate tooltips
         false); //generate URLs
+      
+      //title of the chart
+      String titleString = "Network Attendance Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate + 
+          " (" + this.numberOfSchoolDays + " School Days)";
+      
+      //format the title
+      TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);
+      chart.setTitle(title);
       
       //create renderer to customize the chart
       CategoryPlot plot = chart.getCategoryPlot();
@@ -263,6 +277,7 @@ public class AttendanceComparison {
       //generate the value labels for each section of the bar
       renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator("{2}", NumberFormat.getPercentInstance()));
       renderer.setBaseItemLabelsVisible(true);
+      renderer.setBaseItemLabelFont(MyFonts.ITEM_LABEL_FONT);
          
       int width = 768; //width of the image
       int height = 475; //height of the image
