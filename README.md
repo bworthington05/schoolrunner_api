@@ -22,6 +22,8 @@ Two files related to actually connecting to the API are: **okhttp-2.5.0.jar** an
 
 **javax.mail.jar** is for sending emails.  Find out more and download it from https://java.net/projects/javamail/pages/Home  You can also see some examples of using Java to send emails at http://www.mkyong.com/java/javamail-api-sending-email-via-gmail-smtp-example/
 
+**JFreeChart** is for creating graphs and charts.  Find out more and download it from http://www.jfree.org/jfreechart/
+
 ### How It's Organized
 **building_blocks** is a folder that contains the core building blocks of this project:
 
@@ -33,7 +35,7 @@ Two files related to actually connecting to the API are: **okhttp-2.5.0.jar** an
 * **DatabaseSetup** is the class that manages setting up an entire database.  It uses the CreateDatabase and CreateTable classes to setup a database with specific tables.  It provides public methods that can be invoked in other classes to set up a database with any combination of tables we want.  The methods that set up a given table, like Assessments, also call on the related EndpointAPI class, like AssessmentsAPI, to go ahead and connect to the API and populate the table with that data.  When the DatabaseSetup constructor is used, that calls on the Login class to get the username and password, which are passed into the EndpointAPI objects and then to the ConnectToSRAPI object.
 * **SendEmail** is a class that contains a method send() that sends an email via Gmail SMTP server.
 
-**network_data_digest** is a folder that contains code for producing a network level data digest that can be emailed to people.  Various classes create graphs that compare data across schools, such as attendance rates, course grades distribution, and assessment data.  The graphs are saved a JPEGs then embedded in an email.  See examples of the graphs in the **example_outputs** folder.
+**network_data_digest** is a folder that contains code for producing a network level data digest that can be emailed to people.  Various classes create graphs that compare data across schools, such as attendance rates, course grades distribution, and assessment data.  The graphs are saved as JPEGs then embedded in an email.  See examples of the graphs in the **example_outputs** folder.
 
 **unaligned_assessments** is a folder that contains code for identifying assessments that are missing objectives and then emailing teachers with instructions to fix the assessments.
 
