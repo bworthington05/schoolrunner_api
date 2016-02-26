@@ -329,7 +329,7 @@ public class CourseGradesComparison {
           false); //generate URLs
           
         //title of the chart
-        String titleString = this.subjectNames[n] + " Course Grades Comparison\n as of " + this.prettyToday;
+        String titleString = "Q3 " + this.subjectNames[n] + " Course Grades Comparison\n as of " + this.prettyToday;
         
         //format the title
         TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);

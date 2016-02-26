@@ -8,11 +8,11 @@ public class DataDigest {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    String attMinDate = "2016-02-15";
-    String attMaxDate = "2016-02-20";
+    String attMinDate = "2016-02-22";
+    String attMaxDate = "2016-02-26";
     
-    String assmtMinDate = "2016-01-06";
-    String assmtMaxDate = "2016-02-20";
+    String assmtMinDate = "2015-12-19";
+    String assmtMaxDate = "2016-02-26";
     
     String termBinStartDate = "2015-12-19";
     
@@ -59,7 +59,7 @@ public class DataDigest {
     String elaChart = grades.getChartFile(1); 
     String mathChart = grades.getChartFile(2);
     
-    String subject = "data digest test 2/19/16";
+    String subject = "Network Data Digest #1 2/26/2016";
     
     //how the body of the email is organized
     String htmlText = 
@@ -70,10 +70,10 @@ public class DataDigest {
     "<img src=\"cid:image4\"><br><br>" + "<img src=\"cid:image5\"><br><br>";
     
     //be sure to list these in the same order as in the htmlText above
-    String[] images = {attendanceChart, assessmentChart, unalignedChart, nfSciSSChart, elaChart, mathChart};
+    String[] images = {attendanceChart, assessmentChart, unalignedChart, elaChart, mathChart, nfSciSSChart};
     
     //list attachments in the order: variable then description, variable then description
-    String[] attachments = {unalignedCSV, "Unaligned_Assessments"};
+    String[] attachments = {unalignedCSV, "Unaligned_Assessments.csv"};
     
     //file path for .txt file of email recipients
     String recipients = "/home/ubuntu/workspace/my_github/schoolrunner_api/network_data_digest/email_recipients/test.txt";

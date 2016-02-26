@@ -2,6 +2,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
+import java.net.SocketTimeoutException;
 import java.sql.*;
 
 //abstract superclass for other API endpoint processing classes
@@ -63,6 +64,11 @@ public abstract class GeneralEndpointAPI {
          
    	   } catch (ParseException ex) {
                ex.printStackTrace();
+               
+         } catch (SocketTimeoutException e) {
+               System.err.println(e.getClass().getName() + ": " + e.getMessage());
+               //decrement current page so the next loop repeats the request for this same page
+               page--;
    	         
    	   } catch (Exception e) {
    	         System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -101,6 +107,11 @@ public abstract class GeneralEndpointAPI {
       
 	   } catch (ParseException ex) {
             ex.printStackTrace();
+            
+      } catch (SocketTimeoutException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            //run this method again if this exception happens
+            getTotalNumberOfPages();
 	         
 	   } catch (Exception e) {
 	         System.err.println(e.getClass().getName() + ": " + e.getMessage());

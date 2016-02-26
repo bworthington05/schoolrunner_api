@@ -31,11 +31,19 @@ public class Tester {
          "WHEN 'MCPA - 5th to 8th' THEN 13 " +
          "END";
          
-    AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-01-01", "2016-02-10", "2015-12-19", SQLiteOrderBy);
-    String a = assmt.run();
+    //AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-02-22", "2016-02-26", "2015-12-19", SQLiteOrderBy);
+    //String a = assmt.run();
     
-    AttendanceComparison att = new AttendanceComparison(database, "2016-02-01", "2016-02-07", SQLiteOrderBy);
-    att.run();
+    UnalignedAssessmentComparison unaligned = new UnalignedAssessmentComparison(database, "2015-12-19",
+      "2016-02-26", SQLiteOrderBy);
+    String unalignedMessage = unaligned.getEmailMessage();
+    String unalignedChart = unaligned.run(); 
+    String unalignedCSV = unaligned.getUnalignedAssessmentsCSV();
+    
+    System.out.println(unalignedCSV);
+    
+    //AttendanceComparison att = new AttendanceComparison(database, "2016-02-01", "2016-02-07", SQLiteOrderBy);
+    //att.run();
     
     //CourseGradesComparison courseGrades = new CourseGradesComparison(database, "2015-12-19");
     

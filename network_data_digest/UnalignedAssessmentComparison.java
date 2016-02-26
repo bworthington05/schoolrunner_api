@@ -279,7 +279,7 @@ public class UnalignedAssessmentComparison {
         false); //generate URLs
       
       //title of the chart
-      String titleString = "Assessments Missing Objectives (Raw #)\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
+      String titleString = "Q3 Assessments Missing Objectives (Raw #)\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
       
       //format the title
       TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);

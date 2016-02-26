@@ -92,13 +92,12 @@ public class EmailDataDigest {
         }
         
         //loop through the attachments array and add each attachment to the email
-        for(int n = 0; n < attachments.length; n++) {
+        for(int n = 0; n < this.attachments.length; n += 2) {
 
             this.messageBodyPart = new MimeBodyPart();
             DataSource fds = new FileDataSource(this.attachments[n]);
             this.messageBodyPart.setDataHandler(new DataHandler(fds));
-            n++; //the next element is the file name description that should be displayed in the email
-            this.messageBodyPart.setFileName(this.attachments[n]);
+            this.messageBodyPart.setFileName(this.attachments[n + 1]);
             this.multipart.addBodyPart(this.messageBodyPart);
         }
 

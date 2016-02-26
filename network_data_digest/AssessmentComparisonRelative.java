@@ -331,7 +331,7 @@ public class AssessmentComparisonRelative {
         false); //generate URLs
       
       //title of the chart
-      String titleString = "Teacher-Created Assessment Rate Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
+      String titleString = "Q3 Teacher-Created Assessment Rate Comparison\n" + this.prettyMinDate + " - " + this.prettyMaxDate;
       
       //format the title
       TextTitle title = new TextTitle(titleString, MyFonts.TITLE_FONT);
