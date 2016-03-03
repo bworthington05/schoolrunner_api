@@ -7,14 +7,11 @@ public class Tester {
   public static void main(String args[]) {
     
     //file path for database
-    String dbName = "/home/ubuntu/workspace/databases/SRDB.db";
+    String dbName = "/home/ubuntu/workspace/databases/Test1.db";
     
-    AttendanceComparison attendanceComparison = new AttendanceComparison("2016-01-06", dbName);
-    
-    attendanceComparison.run();
-    
-    //DatabaseSetup database = new DatabaseSetup(dbName);
-    //database.createAbsenceTypesTable();
+    DatabaseSetup database = new DatabaseSetup(dbName);
+    database.createIncidentSuspensionsTable("https://renew.schoolrunner.org/api/v1/incidents?limit=30000&active=1&min_date=2015-07-22&with_related=true&school_ids=13");
+    database.createIncidentsTable("https://renew.schoolrunner.org/api/v1/incidents?limit=30000&active=1&min_date=2015-07-22&school_ids=13");
     //database.createCoursesTable("https://renew.schoolrunner.org/api/v1/courses/?limit=700");
     //database.createSchoolsTable("https://renew.schoolrunner.org/api/v1/schools/?limit=6");
     //database.createStaffTable("https://renew.schoolrunner.org/api/v1/staff-members/?limit=700");

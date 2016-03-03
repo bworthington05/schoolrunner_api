@@ -114,6 +114,29 @@ public class DatabaseSetup {
         " MISSING               TEXT, " +
         " FROM_DATE             TEXT, " +
         " ACTIVE                TEXT)");
+        
+    private static String incidentsTableName = "INCIDENTS";
+    private static String incidentsTableStatement = (
+        "(INCIDENT_ID           TEXT    PRIMARY KEY     NOT NULL, " +
+        " SR_SCHOOL_ID          TEXT, " + 
+        " SR_STAFF_MEMBER_ID    TEXT, " +
+        " DATE                  TEXT, " +
+        " INCIDENT_TYPE_ID      TEXT," + 
+        " SHORT_DESCRIPTION     TEXT," +
+        " LONG_DESCRIPTION      TEXT," +
+        " ACTIVE                TEXT," +
+        " DISPLAY_NAME          TEXT)");
+        
+    private static String incidentSuspensionsTableName = "INCIDENT_SUSPENSIONS";
+    private static String incidentSuspensionsTableStatement = (
+        "(INCIDENT_SUSPENSION_ID    TEXT    PRIMARY KEY     NOT NULL, " +
+        " INCIDENT_ID               TEXT, " + 
+        " INCIDENT_STUDENT_ID       TEXT, " +
+        " SR_STUDENT_ID             TEXT, " +
+        " NUM_DAYS                  TEXT," + 
+        " START_DATE                TEXT," +
+        " SUSPENSION_TYPE_ID        TEXT," +
+        " ACTIVE                    TEXT)");
     
     private Login login = new Login();
     
@@ -308,6 +331,38 @@ public class DatabaseSetup {
         assessmentStudentsTable.run();
         AssessmentStudentsAPI assessmentStudentsAPI = new AssessmentStudentsAPI(login.getUsername(), login.getPassword(), dbName, assessmentStudentsTableName, endpoint);
         assessmentStudentsAPI.run();
+    }
+    
+    //method to create incidents table and load in data from API, uses default endpoint from IncidentsAPI class  
+    public void createIncidentsTable() {
+        CreateTable incidentsTable = new CreateTable(dbName, incidentsTableName, incidentsTableStatement);
+        incidentsTable.run();
+        IncidentsAPI incidentsAPI = new IncidentsAPI(login.getUsername(), login.getPassword(), dbName, incidentsTableName);
+        incidentsAPI.run();
+    }
+    
+    //overloaded method to create incidents table and load in data from API, uses custom endpoint
+    public void createIncidentsTable(String endpoint) {
+        CreateTable incidentsTable = new CreateTable(dbName, incidentsTableName, incidentsTableStatement);
+        incidentsTable.run();
+        IncidentsAPI incidentsAPI = new IncidentsAPI(login.getUsername(), login.getPassword(), dbName, incidentsTableName, endpoint);
+        incidentsAPI.run();
+    }
+    
+    //method to create incident-suspensions table and load in data from API, uses default endpoint from IncidentSuspensionsAPI class  
+    public void createIncidentSuspensionsTable() {
+        CreateTable incidentSuspensionsTable = new CreateTable(dbName, incidentSuspensionsTableName, incidentSuspensionsTableStatement);
+        incidentSuspensionsTable.run();
+        IncidentSuspensionsAPI incidentSuspensionsAPI = new IncidentSuspensionsAPI(login.getUsername(), login.getPassword(), dbName, incidentSuspensionsTableName);
+        incidentSuspensionsAPI.run();
+    }
+    
+    //overloaded method to create incidentSuspensions-suspensions table and load in data from API, uses custom endpoint
+    public void createIncidentSuspensionsTable(String endpoint) {
+        CreateTable incidentSuspensionsTable = new CreateTable(dbName, incidentSuspensionsTableName, incidentSuspensionsTableStatement);
+        incidentSuspensionsTable.run();
+        IncidentSuspensionsAPI incidentSuspensionsAPI = new IncidentSuspensionsAPI(login.getUsername(), login.getPassword(), dbName, incidentSuspensionsTableName, endpoint);
+        incidentSuspensionsAPI.run();
     }
     
 } //end class DatabaseSetup
