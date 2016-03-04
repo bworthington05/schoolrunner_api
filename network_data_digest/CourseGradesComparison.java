@@ -455,9 +455,9 @@ public class CourseGradesComparison {
   //method to get the String message that should go above the chart in an email
   public String getEmailMessage() {
     
-    String message = "<strong>These charts show the percent of students whose current grade in each core content " +
+    String message = "<i><font size='3'>These charts show the percent of students whose current grade in each core content " +
       "subject is at a certain level.  Grades are grouped by percents that correspond to the standard ReNEW grading scale. " +
-      "Nonfiction, Science, and Social Studies are combined.</strong><br><br>.";
+      "Nonfiction, Science, and Social Studies are combined.</i></font size='3'><br><br>.";
     
     return message;
   }

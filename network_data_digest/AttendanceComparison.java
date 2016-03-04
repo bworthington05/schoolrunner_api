@@ -332,8 +332,8 @@ public class AttendanceComparison {
   //method to get the String message that should go above the chart in an email
   public String getEmailMessage() {
     
-    String message = "<strong>This chart shows a relative comparison of absence and tardy rates across the " +
-      "network for the date range shown. It is based on daily attendance data recorded in Schoolrunner.</strong><br><br>.";
+    String message = "<i><font size='3'>This chart shows a relative comparison of absence and tardy rates across the " +
+      "network for the date range shown. It is based on daily attendance data recorded in Schoolrunner.</i></font size='3'><br><br>.";
     
     return message;
   }

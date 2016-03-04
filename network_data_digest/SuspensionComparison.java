@@ -330,9 +330,9 @@ public class SuspensionComparison {
       
       //set the color of each series using custom colors from MyColors class
       renderer.setSeriesPaint(0, MyColors.LIGHT_PURPLE);
-      renderer.setSeriesPaint(1, MyColors.LIGHT_GREEN);
-      renderer.setSeriesPaint(2, MyColors.ORANGE);
-      renderer.setSeriesPaint(3, MyColors.LIGHT_BLUE);
+      renderer.setSeriesPaint(1, MyColors.YELLOW);
+      renderer.setSeriesPaint(2, MyColors.LIGHT_GREEN);
+      renderer.setSeriesPaint(3, MyColors.BLUE);
       
       //set the category labels on the X axis to be written vertically
       CategoryAxis categoryAxis = (CategoryAxis) plot.getDomainAxis();
@@ -416,9 +416,10 @@ public class SuspensionComparison {
   //method to get the String message that should go above the chart in an email
   public String getEmailMessage() {
     
-    String message = "<strong>This chart shows the relative rate of out-of-school suspensions at each school by quarter. " +
-      "Specifically, it shows the number of OSS days per 10,000 student days in school. It is based on incidents/suspensions " +
-      "recorded in Schoolrunner.</strong><br><br>.";
+    String message = "<i><font size='3'>This chart shows the relative rate of out-of-school suspensions at each school by quarter. " +
+      "Specifically, it shows the number of OSS days per 10,000 student days in school, which equates to approximately " +
+      "a month of instructional days for a school with 500 students. It is based on incidents/suspensions " +
+      "recorded in Schoolrunner.</i></font size='3'><br><br>.";
     
     return message;
   }

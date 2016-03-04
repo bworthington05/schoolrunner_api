@@ -296,10 +296,10 @@ public class UnalignedAssessmentComparison {
       plot.setBackgroundPaint(Color.WHITE);
       
       //set the color of each series using custom colors from MyColors class
-      renderer.setSeriesPaint(0, MyColors.LIGHT_PURPLE);
+      renderer.setSeriesPaint(0, MyColors.ORANGE);
       renderer.setSeriesPaint(1, MyColors.LIGHT_GREEN);
-      renderer.setSeriesPaint(2, MyColors.BLUE);
-      renderer.setSeriesPaint(3, MyColors.ORANGE);
+      renderer.setSeriesPaint(2, MyColors.LIGHT_PURPLE);
+      renderer.setSeriesPaint(3, MyColors.BLUE);
       renderer.setSeriesPaint(4, MyColors.LIGHT_BLUE);
       
       //set the category labels on the X axis to be written vertically
@@ -505,10 +505,10 @@ public class UnalignedAssessmentComparison {
   //method to get the String message that should go above the chart in an email
   public String getEmailMessage() {
     
-    String message = "<strong>This chart shows the number of teacher-created assessments in Schoolrunner " +
+    String message = "<i><font size='3'>This chart shows the number of teacher-created assessments in Schoolrunner " +
       "that are missing objectives and currently do <u>not count towards students' grades</u>. To see exactly " +
       "which assessments are missing objectives and which teachers created them, " +
-      "view the attached list Unaligned_Assessments.</strong><br><br>.";
+      "view the attached list Unaligned_Assessments.</i></font size='3'><br><br>.";
     
     return message;
   }

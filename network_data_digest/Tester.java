@@ -34,12 +34,12 @@ public class Tester {
     //AssessmentComparisonRelative assmt = new AssessmentComparisonRelative(database, "2016-02-22", "2016-02-26", "2015-12-19", SQLiteOrderBy);
     //String a = assmt.run();
     
-    //SuspensionComparison suspension = new SuspensionComparison(database, "2015-07-22", "2015-09-26", "2015-12-19", "2016-03-19", SQLiteOrderBy);
-    //suspension.run();
+    SuspensionComparison suspension = new SuspensionComparison(database, "2015-07-22", "2015-09-26", "2015-12-19", "2016-03-19", SQLiteOrderBy);
+    suspension.run();
     
     
-    AttendanceComparison att = new AttendanceComparison(database, "2016-02-22", "2016-02-26", SQLiteOrderBy);
-    att.run();
+    //AttendanceComparison att = new AttendanceComparison(database, "2016-02-22", "2016-02-26", SQLiteOrderBy);
+    //att.run();
     
     //CourseGradesComparison courseGrades = new CourseGradesComparison(database, "2015-12-19");
     

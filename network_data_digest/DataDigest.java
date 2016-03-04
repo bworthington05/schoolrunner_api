@@ -8,13 +8,13 @@ public class DataDigest {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    String subject = "Network Data Digest #2 3/4/2016 TEST"; //change this
+    String subject = "Network Data Digest 3/4/2016"; //change this
     
     String attMinDate = "2016-02-29"; //change this
-    String attMaxDate = "2016-03-03"; //change this
+    String attMaxDate = "2016-03-04"; //change this
     
     String assmtMinDate = "2015-12-19"; //change this
-    String assmtMaxDate = "2016-03-03"; //change this
+    String assmtMaxDate = "2016-03-04"; //change this
     
     String q1StartDate = "2015-07-22";
     String q2StartDate = "2015-09-26"; 
@@ -74,14 +74,14 @@ public class DataDigest {
     //how the body of the email is organized
     String htmlText = 
     attendanceMessage + "<img src=\"cid:image0\"><br><br><br>" +
-    assessmentMessage + "<img src=\"cid:image1\"><br><br><br>" +
-    unalignedMessage + "<img src=\"cid:image2\"><br><br><br>" +
-    gradesMessage + "<img src=\"cid:image3\"><br><br>" +
-    "<img src=\"cid:image4\"><br><br>" + "<img src=\"cid:image5\"><br><br><br>" +
-    suspensionMessage + "<img src=\"cid:image6\"><br><br>";
+    suspensionMessage + "<img src=\"cid:image1\"><br><br><br>" +
+    assessmentMessage + "<img src=\"cid:image2\"><br><br><br>" +
+    unalignedMessage + "<img src=\"cid:image3\"><br><br><br>" +
+    gradesMessage + "<img src=\"cid:image4\"><br><br>" +
+    "<img src=\"cid:image5\"><br><br>" + "<img src=\"cid:image6\"><br><br><br>";
     
     //be sure to list these in the same order as in the htmlText above
-    String[] images = {attendanceChart, assessmentChart, unalignedChart, elaChart, mathChart, nfSciSSChart, suspensionChart};
+    String[] images = {attendanceChart, suspensionChart, assessmentChart, unalignedChart, elaChart, mathChart, nfSciSSChart};
     
     //list attachments in the order: variable then description, variable then description
     String[] attachments = {unalignedCSV, "Unaligned_Assessments.csv"};
