@@ -31,7 +31,7 @@ public class AbsenceTypesAPI extends GeneralEndpointAPI {
    @Override
    public void run() {
       
-      JSONArray innerJsonArray = getAllPages("absence-types");
+      JSONArray innerJsonArray = getAllPages("absence_types");
       
       Connection c = null;
       PreparedStatement stmt = null;

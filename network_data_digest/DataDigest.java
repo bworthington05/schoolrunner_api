@@ -8,13 +8,20 @@ public class DataDigest {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    String attMinDate = "2016-02-22";
-    String attMaxDate = "2016-02-26";
+    String subject = "Network Data Digest #2 3/4/2016 TEST"; //change this
     
-    String assmtMinDate = "2015-12-19";
-    String assmtMaxDate = "2016-02-26";
+    String attMinDate = "2016-02-29"; //change this
+    String attMaxDate = "2016-03-03"; //change this
     
-    String termBinStartDate = "2015-12-19";
+    String assmtMinDate = "2015-12-19"; //change this
+    String assmtMaxDate = "2016-03-03"; //change this
+    
+    String q1StartDate = "2015-07-22";
+    String q2StartDate = "2015-09-26"; 
+    String q3StartDate = "2015-12-19";
+    String q4StartDate = "2016-03-19";
+    
+    String termBinStartDate = q3StartDate;
     
     String SQLiteOrderBy = 
     "CASE schools.display_name " +
@@ -59,18 +66,22 @@ public class DataDigest {
     String elaChart = grades.getChartFile(1); 
     String mathChart = grades.getChartFile(2);
     
-    String subject = "Network Data Digest #1 2/26/2016";
+    //do the suspension rate part
+    SuspensionComparison suspension = new SuspensionComparison(database, q1StartDate, q2StartDate, q3StartDate, q4StartDate, SQLiteOrderBy);
+    String suspensionMessage = suspension.getEmailMessage();
+    String suspensionChart = suspension.run();
     
     //how the body of the email is organized
     String htmlText = 
-    attendanceMessage + "<img src=\"cid:image0\"><br><br><br>"+
+    attendanceMessage + "<img src=\"cid:image0\"><br><br><br>" +
     assessmentMessage + "<img src=\"cid:image1\"><br><br><br>" +
     unalignedMessage + "<img src=\"cid:image2\"><br><br><br>" +
     gradesMessage + "<img src=\"cid:image3\"><br><br>" +
-    "<img src=\"cid:image4\"><br><br>" + "<img src=\"cid:image5\"><br><br>";
+    "<img src=\"cid:image4\"><br><br>" + "<img src=\"cid:image5\"><br><br><br>" +
+    suspensionMessage + "<img src=\"cid:image6\"><br><br>";
     
     //be sure to list these in the same order as in the htmlText above
-    String[] images = {attendanceChart, assessmentChart, unalignedChart, elaChart, mathChart, nfSciSSChart};
+    String[] images = {attendanceChart, assessmentChart, unalignedChart, elaChart, mathChart, nfSciSSChart, suspensionChart};
     
     //list attachments in the order: variable then description, variable then description
     String[] attachments = {unalignedCSV, "Unaligned_Assessments.csv"};
