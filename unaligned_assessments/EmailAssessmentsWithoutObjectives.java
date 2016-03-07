@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import javax.mail.AuthenticationFailedException;
 
 public class EmailAssessmentsWithoutObjectives {
     
@@ -87,7 +88,22 @@ public class EmailAssessmentsWithoutObjectives {
                 sendEmail.send(recipient, subject, text);
                 sentEmails++;
             
-            //catch exceptions that may occur when email is attempted, output error message
+            //catch exceptions for too many email login attempts, pause for a while, then try this email again
+            } catch (AuthenticationFailedException e) {
+                System.out.println("ERROR with index " + i + ", email not sent to " + recipient);
+                System.out.println(e);
+                System.out.println("Pausing for 4 minutes and then attempting this email again...\n");
+                    try {
+                        Thread.sleep(240000);
+        
+                    } catch (InterruptedException ie) {
+                        System.out.println(ie);
+                    }
+                    
+                //decrement i so the next email attempt tries this index again
+                i--;
+
+            //catch any other exceptions that may occur when email is attempted, output error message
             } catch (RuntimeException e) {
                 System.out.println("ERROR with index " + i + ", email not sent to " + recipient);
                 System.out.println(e);
