@@ -4,22 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.io.*;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.axis.NumberAxis;
-import java.text.NumberFormat;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import java.awt.Color;
-import java.util.Scanner;
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
-import org.jfree.chart.title.TextTitle;
 
 //generates a .CSV file that shows each student's total minutes out of class as recorded through
 //Schoolrunner's Incidents page
@@ -132,9 +116,6 @@ public class MinutesOutOfClass {
       
       //new filewriter object for saving the data to a .csv
       FileWriter writer = new FileWriter(csvFileName);
-      
-      //new dataset ob for making a jfreechart graph
-      DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
       
       writer.append("School");
 	    writer.append(',');
