@@ -118,4 +118,12 @@ SR_STUDENT_ID
 NUM_DAYS                 
 START_DATE                
 SUSPENSION_TYPE_ID        
-ACTIVE                   
+ACTIVE
+
+Table = INCIDENT_STUDENTS
+INCIDENT_STUDENT_ID      
+INCIDENT_ID             
+SR_STUDENT_ID          
+INCIDENT_ROLE_ID        
+MINUTES_OUT_OF_CLASS     
+ACTIVE              

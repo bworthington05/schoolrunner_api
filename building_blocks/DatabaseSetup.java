@@ -137,6 +137,15 @@ public class DatabaseSetup {
         " START_DATE                TEXT," +
         " SUSPENSION_TYPE_ID        TEXT," +
         " ACTIVE                    TEXT)");
+        
+    private static String incidentStudentsTableName = "INCIDENT_STUDENTS";
+    private static String incidentStudentsTableStatement = (
+        "(INCIDENT_STUDENT_ID       TEXT    PRIMARY KEY     NOT NULL, " +
+        " INCIDENT_ID               TEXT, " + 
+        " SR_STUDENT_ID             TEXT, " +
+        " INCIDENT_ROLE_ID          TEXT," + 
+        " MINUTES_OUT_OF_CLASS      TEXT," +
+        " ACTIVE                    TEXT)");
     
     private Login login = new Login();
     
@@ -357,12 +366,28 @@ public class DatabaseSetup {
         incidentSuspensionsAPI.run();
     }
     
-    //overloaded method to create incidentSuspensions-suspensions table and load in data from API, uses custom endpoint
+    //overloaded method to create incident-suspensions table and load in data from API, uses custom endpoint
     public void createIncidentSuspensionsTable(String endpoint) {
         CreateTable incidentSuspensionsTable = new CreateTable(dbName, incidentSuspensionsTableName, incidentSuspensionsTableStatement);
         incidentSuspensionsTable.run();
         IncidentSuspensionsAPI incidentSuspensionsAPI = new IncidentSuspensionsAPI(login.getUsername(), login.getPassword(), dbName, incidentSuspensionsTableName, endpoint);
         incidentSuspensionsAPI.run();
+    }
+    
+    //method to create incident-students table and load in data from API, uses default endpoint from IncidentStudentsAPI class  
+    public void createIncidentStudentsTable() {
+        CreateTable incidentStudentsTable = new CreateTable(dbName, incidentStudentsTableName, incidentStudentsTableStatement);
+        incidentStudentsTable.run();
+        IncidentStudentsAPI incidentStudentsAPI = new IncidentStudentsAPI(login.getUsername(), login.getPassword(), dbName, incidentStudentsTableName);
+        incidentStudentsAPI.run();
+    }
+    
+    //overloaded method to create incident-students table and load in data from API, uses custom endpoint
+    public void createIncidentStudentsTable(String endpoint) {
+        CreateTable incidentStudentsTable = new CreateTable(dbName, incidentStudentsTableName, incidentStudentsTableStatement);
+        incidentStudentsTable.run();
+        IncidentStudentsAPI incidentStudentsAPI = new IncidentStudentsAPI(login.getUsername(), login.getPassword(), dbName, incidentStudentsTableName, endpoint);
+        incidentStudentsAPI.run();
     }
     
 } //end class DatabaseSetup
