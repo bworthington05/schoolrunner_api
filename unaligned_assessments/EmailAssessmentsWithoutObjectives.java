@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import javax.mail.AuthenticationFailedException;
 
 public class EmailAssessmentsWithoutObjectives {
     
@@ -87,9 +86,12 @@ public class EmailAssessmentsWithoutObjectives {
                 
                 sendEmail.send(recipient, subject, text);
                 sentEmails++;
+                
+                System.out.println("index " + i + " processed\n");
             
-            //catch exceptions for too many email login attempts, pause for a while, then try this email again
-            } catch (AuthenticationFailedException e) {
+            //catch exceptions (possibly for too many email login attempts), pause for a while, then try this email again
+            } catch (RuntimeException e) {
+                
                 System.out.println("ERROR with index " + i + ", email not sent to " + recipient);
                 System.out.println(e);
                 System.out.println("Pausing for 4 minutes and then attempting this email again...\n");
@@ -99,23 +101,25 @@ public class EmailAssessmentsWithoutObjectives {
                     } catch (InterruptedException ie) {
                         System.out.println(ie);
                     }
-                    
+                
+                //track the number of failed attempts due to exceptions
+                failedEmails++;
+                   
                 //decrement i so the next email attempt tries this index again
                 i--;
-
-            //catch any other exceptions that may occur when email is attempted, output error message
-            } catch (RuntimeException e) {
-                System.out.println("ERROR with index " + i + ", email not sent to " + recipient);
-                System.out.println(e);
-                failedEmails++;
             }
             
-            System.out.println("index " + i + " processed\n");
+            if (failedEmails >= 10) {
+                System.out.println("WARNING: exceeded 10 failed attempts, terminating early");
+                
+                //break out of the email loop
+                break;
+            }
             
-        }
+        } //end email loop
         
         System.out.println("email loop complete, total emails sent: " + sentEmails);
-        System.out.println("total failed emails due to exceptions: " + failedEmails);
+        System.out.println("failed attempts due to exceptions: " + failedEmails);
         
     } //end run method
     

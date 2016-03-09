@@ -9,7 +9,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.Multipart;
-import javax.mail.AuthenticationFailedException;
 
 public class SendEmail {
 	
@@ -31,7 +30,7 @@ public class SendEmail {
     }
 	
 	//method that sends the email- requires recipient, subject, text/body
-	public void send(String recipient, String subject, String text) throws AuthenticationFailedException {
+	public void send(String recipient, String subject, String text) {
 
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
