@@ -1,0 +1,92 @@
+DIRECTIONS FOR INSTALLING DEPENDENCIES IN CLOUD9 IDE (UBUNTU)
+
+FOR JAVA STUFF
+
+    **Installing packages needed for easily connecting to API:
+    Download the .jar files here:
+    http://square.github.io/okhttp/
+    Upload them to cloud9 in some folder
+    Copy both .jar files to the folder where java stuff is installed (rather than setting environment variables)
+    
+    sudo cp okhttp-2.5.0.jar  /usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/okhttp-2.5.0.jar
+    sudo cp okio-1.6.0.jar /usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/okio-1.6.0.jar
+    
+    **Java JSON parsing:
+    http://www.tutorialspoint.com/json/json_java_example.htm
+    Install json-simple.1.1.1.jar:
+    sudo cp json-simple-1.1.1.jar /usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/json-simple-1.1.1.jar
+    http://examples.javacodegeeks.com/core-java/json/java-json-parser-example/
+    
+    **SQLite database
+    http://www.tutorialspoint.com/sqlite/sqlite_java.htm
+    Download the .jar file and install
+    sudo cp sqlite-jdbc-3.8.11.2.jar /usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/sqlite-jdbc-3.8.11.2.jar
+    
+    https://www.sqlite.org/json1.html
+    https://docs.c9.io/docs/setting-up-sqlite3
+    http://www.tutorialspoint.com/sqlite/index.htm
+    
+    **Sending email example
+    https://java.net/projects/javamail/pages/Home
+    Download javax.mail.jar
+    sudo cp javax.mail.jar /usr/lib/jvm/java-1.7.0-openjdk-amd64/jre/lib/ext/javax.mail.jar
+    http://www.mkyong.com/java/javamail-api-sending-email-via-gmail-smtp-example/
+    Setting multiple recipients:
+    http://stackoverflow.com/questions/13854037/send-mail-to-multiple-recipients-in-java
+    
+    **JFreeChart
+    http://www.tutorialspoint.com/jfreechart/jfreechart_installation.htm
+    Download at http://sourceforge.net/projects/jfreechart/files/1.%20JFreeChart/
+    
+    **Setting environment variables
+    This specifies places programs should look in for dependencies needed to run 
+    Click gear in top left corner, check show root/home/hidden
+    Open .bashrc
+    Update classpath at bottom
+    export CLASSPATH="/home/ubuntu/workspace/my_github/schoolrunner_api/building_blocks:
+            /home/ubuntu/workspace/jfreechart-1.0.19/lib/jfreechart-1.0.19.jar:
+                /home/ubuntu/workspace/jfreechart-1.0.19/lib/jcommon-1.0.23.jar:."
+    click save
+    echo $CLASSPATH to confirm CLASSPATH is saved
+
+FOR PYTHON STUFF
+
+    **cx_Oracle module to connect to Oracle database (e.g., PowerSchool)
+    First, must install Oracle: http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html
+    Download:
+        instantclient-basic-linux.x64-11.2.0.4.0.zip
+        instantclient-sdk-linux.x64-11.2.0.4.0.zip
+    Unzip the files
+    For SDK, make sure all files inside are also unzipped
+    Upload all contents to cloud9 into one folder called instantclient_11_2
+    Make a directory where Oracle will live: sudo mkdir -p /opt/ora/
+    Move the instantclient_11_2 folder to the new Oracle director: sudo mv instantclient_11_2 /opt/ora/instantclient_11_2
+    Modify the path:
+        export ORACLE_HOME=/opt/ora/instantclient_11_2
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME
+    Create a symlink: cd $ORACLE_HOME && ln -s libclntsh.so.11.1 libclntsh.so
+    We're going to install cx_Oracle with sudo pip install cx_Oracle, but sudo may not recognize $ORACLE_HOME, so follow these instructions:
+    http://www.toadworld.com/platforms/oracle/b/weblog/archive/2014/08/25/getting-python-to-play-with-oracle-using-cxoracle-on-mint-and-ubuntu
+    Basically, do this:
+        sudo visudo
+        below the other Defaults, add: Defaults env_keep += "ORACLE_HOME"
+        hit Ctrl X, save Y
+        Confirm changes by entering: sudo env |grep ORACLE_HOME
+    
+    Finally: sudo pip install cx_Oracle
+    
+    Run python script from command line with: python path/file.py
+    
+    If python complains about not finding something it needs with Oracle, check environment variables
+    
+    **Setting environment variables
+    This specifies places programs should look in for dependencies needed to run 
+    Click gear in top left corner, check show root/home/hidden
+    Open .bashrc
+    Update library path at bottom
+    export LD_LIBRARY_PATH="~/.c9/local/lib:/opt/ora/instantclient_11_2:."
+    click save
+    echo $LD_LIBRARY_PATH to confirm
+
+
+
