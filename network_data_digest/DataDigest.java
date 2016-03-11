@@ -8,13 +8,13 @@ public class DataDigest {
     
     DatabaseSetup database = new DatabaseSetup(dbName);
     
-    String subject = "Network Data Digest 3/4/2016"; //change this
+    String subject = "Network Data Digest 3/11/2016"; //change this
     
-    String attMinDate = "2016-02-29"; //change this
-    String attMaxDate = "2016-03-04"; //change this
+    String attMinDate = "2016-03-07"; //change this
+    String attMaxDate = "2016-03-11"; //change this
     
     String assmtMinDate = "2015-12-19"; //change this
-    String assmtMaxDate = "2016-03-04"; //change this
+    String assmtMaxDate = "2016-03-11"; //change this
     
     String q1StartDate = "2015-07-22";
     String q2StartDate = "2015-09-26"; 

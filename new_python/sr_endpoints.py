@@ -17,7 +17,7 @@ import numpy
 # Requires endpoint URL, endpoint name, user, and pw
 # Endpoint url MUST already include a parameter OR end in a ? so that "page=" can be appended to it below
 # URL should not already include a page parameter though
-# Endpoint name is he name that comes after "results" in the JSON data
+# Endpoint name is the name that comes after "results" in the JSON data
 def get_data(url, endpoint_name, user, pw):
     
     # We have to loop through the results a few times because it could have multiple pages
@@ -40,6 +40,12 @@ def get_data(url, endpoint_name, user, pw):
         
         json_meta = json_all['meta']
         total_pages = json_meta['total_pages']  # Reset total_pages to the true value once we get it
+        
+        # Print meta data (total pages, total records, etc.)
+        if page == 1:
+            print endpoint_name + ' endpoint meta data:'
+            for keys, values in json_meta.items():
+                print str(keys) + ' : ' + str(values)
         
         bucket.extend(json_single_page)  # Add the current page of data to the bucket
         
