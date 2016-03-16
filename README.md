@@ -4,7 +4,7 @@ The purpose of this project is to use SchoolRunner's API and do stuff with data 
 Here's the general idea:
 
 1. Connect to one or more of SR's API endpoints (students, assessments, courses, etc.).
-2. Pasrse the JSON results and save the data to a SQLite database.
+2. Parse the JSON results and save the data to a SQLite database.
 3. Use SQLite to query the database to get the specific information we want.
 
 Possible applications:

@@ -87,6 +87,14 @@ FOR PYTHON STUFF
     export LD_LIBRARY_PATH="~/.c9/local/lib:/opt/ora/instantclient_11_2:."
     click save
     echo $LD_LIBRARY_PATH to confirm
+    
+    ake sure LD_LIBRARY_PATH="~/.c9/local/lib:/opt/ora/instantclient_11_2:." is listed
+    in any crontab that is running scripts that use python cx_Oracle
+    
+    **pysftp module to interact with SFTPs
+    sudo pip install pysftp
+    http://www.pythonforbeginners.com/modules-in-python/python-secure-ftp-module
+    https://pysftp.readthedocs.org/en/release_0.2.8/index.html
 
 
 
