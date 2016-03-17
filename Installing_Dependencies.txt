@@ -88,8 +88,12 @@ FOR PYTHON STUFF
     click save
     echo $LD_LIBRARY_PATH to confirm
     
-    ake sure LD_LIBRARY_PATH="~/.c9/local/lib:/opt/ora/instantclient_11_2:." is listed
+    make sure LD_LIBRARY_PATH="~/.c9/local/lib:/opt/ora/instantclient_11_2:." is listed
     in any crontab that is running scripts that use python cx_Oracle
+    
+    setup crontabs like this: sudo crontab -e   then  sudo cron start
+    files/databases created in a crontab can only be accessed with sudo in front of comman
+    
     
     **pysftp module to interact with SFTPs
     sudo pip install pysftp
