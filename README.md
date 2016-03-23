@@ -1,6 +1,8 @@
 # schoolrunner_api
 The purpose of this project is to use SchoolRunner's API and do stuff with data that is not possible or practical through the app.  Source code is written in Java and SQLite (plus a few simple stand-alone Python scripts).
 
+**3/23/16 - I'm transitioning primarily to Python.  Check out new stuff at: https://github.com/bworthington05/schoolrunner_api_python**
+
 Here's the general idea:
 
 1. Connect to one or more of SR's API endpoints (students, assessments, courses, etc.).
